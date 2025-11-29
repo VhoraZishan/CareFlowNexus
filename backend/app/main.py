@@ -1,8 +1,17 @@
 # app/main.py
 from fastapi import FastAPI
 from app.routers import patients, beds, tasks, admissions, agent,discharge, debug
+from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI(title="CareFlowNexus - Backend (DB aligned)")
+app = FastAPI(title="CareFlowNexus - Backend")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],   # during development allow all
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(patients.router, prefix="/patients")
 app.include_router(beds.router, prefix="/beds")
