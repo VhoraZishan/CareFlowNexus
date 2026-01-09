@@ -1,5 +1,6 @@
 import os
 
+<<<<<<< HEAD
 import httpx
 
 BED_AGENT_URL = os.getenv("BED_AGENT_URL", "http://localhost:9000/agent/bed-assignment")
@@ -10,6 +11,11 @@ NURSE_AGENT_URL = os.getenv(
     "NURSE_AGENT_URL", "http://localhost:9000/agent/nurse-assignment"
 )
 
+=======
+BED_AGENT_URL = os.getenv("BED_AGENT_URL", "http://localhost:9000/agent/bed-assignment")
+CLEANER_AGENT_URL = os.getenv("CLEANER_AGENT_URL", "http://localhost:9000/agent/cleaner-assignment")
+NURSE_AGENT_URL = os.getenv("NURSE_AGENT_URL", "http://localhost:9000/agent/nurse-assignment")
+>>>>>>> dacac6ce13b9167cac683145f68d78d876c7cdec
 
 def call_bed_agent(patient, doctor_input, available_beds):
     payload = {
