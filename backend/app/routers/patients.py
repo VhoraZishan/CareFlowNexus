@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException, Request
 from app.models.schemas import CreatePatientRequest, DischargeRequest
 from app.services.role_guard import require_role
 from app.core.firebase import db
@@ -107,3 +107,46 @@ def request_discharge(patient_id: str, data: DischargeRequest):
         "status": "discharge_requested",
         "assigned_nurse_id": nurse_id
     }
+
+@router.get("/pending-confirmation")
+def list_patients_pending_confirmation(user_id: str):
+    """
+    List patients whose admission is waiting for receptionist bed confirmation.
+    Role required: receptionist
+    """
+
+    # --- 1. Validate user role (simple check) ---
+    user_ref = db.collection("users").document(user_id).get()
+    if not user_ref.exists:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    user = user_ref.to_dict()
+    if user.get("role") != "receptionist":
+        raise HTTPException(status_code=403, detail="Access denied")
+
+    # --- 2. Query patients waiting for confirmation ---
+    patients_ref = (
+        db.collection("patients")
+        .where("status", "==", "pending_confirmation")
+        .stream()
+    )
+
+    response = []
+
+    for doc in patients_ref:
+        patient = doc.to_dict()
+
+        response.append({
+            "patient_id": doc.id,
+            "name": patient.get("name"),
+            "age": patient.get("age"),
+            "gender": patient.get("gender"),
+            "special_needs": patient.get("special_needs", []),
+            "diagnosis": patient.get("admission", {}).get("diagnosis"),
+            "recommended_bed": {
+                "bed_id": patient.get("admission", {}).get("recommended_bed_id"),
+                "reason": patient.get("admission", {}).get("bed_reason")
+            }
+        })
+
+    return response
