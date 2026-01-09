@@ -25,3 +25,11 @@ class ConfirmBedRequest(BaseModel):
 
 class TaskActionRequest(BaseModel):
     user_id: str
+
+class DischargeRequest(BaseModel):
+    user_id: str
+    discharge_notes: str
+
+class TaskCompleteRequest(BaseModel):
+    user_id: str
+    notes: str | None = None
