@@ -296,15 +296,8 @@ async def call_bed_agent(request: BedAgentRequest):
 
         logger.info(f"Bed assignment request for patient: {patient_id}")
 
-        # Update patient with diagnosis information
-        await firebase_service.update_patient(
-            patient_id,
-            {
-                "diagnosis": doctor_input.get("diagnosis"),
-                "severity": _infer_severity(doctor_input.get("diagnosis", "")),
-                "requirements": _extract_basic_requirements(doctor_input),
-            },
-        )
+        # NOTE: Agents do NOT write to database - backend handles all writes
+        # Agents only return recommendations based on current state
 
         # Call Bed Allocator Agent
         result = await bed_allocator_agent.process({"patient_id": patient_id})
