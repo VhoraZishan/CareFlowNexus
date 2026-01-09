@@ -43,8 +43,8 @@ const NewPatient = () => {
                 // 'reason' might be mapped to 'diagnosis' or just stored in history for now 
                 // as the simple CREATE endpoint doesn't seem to have a dedicated 'reason' field
                 // distinct from admission diagnosis. We'll append it to history.
-                medical_history: `${formData.history || ''} \n[Reason for Visit: ${formData.reason}]`,
-                special_needs: formData.needs,
+                medical_history: [`${formData.history || ''} \n[Reason for Visit: ${formData.reason}]`],
+                special_needs: [formData.needs],
             };
 
             await api.createPatient(patientPayload);

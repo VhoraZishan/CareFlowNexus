@@ -5,6 +5,10 @@
   --text-secondary: #64748b;
   --primary-color: #3b82f6;
   --primary-hover: #2563eb;
+  --secondary-bg: #ffffff;
+  --secondary-text: #475569;
+  --secondary-border: #e2e8f0;
+  --secondary-hover: #f1f5f9;
   --border-color: #e2e8f0;
   --input-bg: #f8fafc;
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
@@ -31,4 +35,47 @@ body {
 
 #root {
   min-height: 100vh;
+}
+
+/* Global Button Styles */
+.btn-primary,
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.2rem;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  border: none;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  color: white;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.25);
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background-color: var(--secondary-bg);
+  color: var(--secondary-text);
+  border: 1px solid var(--secondary-border);
+}
+
+.btn-secondary:hover {
+  background-color: var(--secondary-hover);
+  border-color: #cbd5e1;
+}
+
+.btn-icon {
+  font-size: 1.1em;
+  line-height: 1;
 }

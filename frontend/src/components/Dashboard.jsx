@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
 import Layout from './Layout';
 import './Dashboard.css';
 
 const Dashboard = () => {
+    const navigate = useNavigate();
     const [stats, setStats] = useState({
         patients: { value: '-', change: '...', isPositive: true },
         appointments: { value: '-', change: 'Today', isPositive: false },
@@ -51,13 +53,17 @@ const Dashboard = () => {
             title="Dashboard Overview"
             actions={
                 <>
-                    <button className="btn-secondary">Notifications</button>
-                    <button className="btn-primary">+ New Patient</button>
+                    <button className="btn-primary" onClick={() => navigate('/patients/new')}>
+                        <span className="btn-icon">➕</span> New Patient
+                    </button>
+                    <button className="btn-secondary">
+                        <span className="btn-icon">🔔</span> Notifications
+                    </button>
                 </>
             }
         >
             <div className="stats-grid">
-                <div className="stat-card">
+                <div className="stat-card" onClick={() => navigate('/patients')} style={{ cursor: 'pointer' }}>
                     <h3>Total Patients</h3>
                     <p className="stat-value">{stats.patients.value}</p>
                     <span className={`stat-change ${stats.patients.isPositive ? 'positive' : ''}`}>{stats.patients.change}</span>

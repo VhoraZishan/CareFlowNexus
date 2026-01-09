@@ -21,7 +21,7 @@ const Layout = ({ children, title, actions }) => {
                     <button onClick={() => navigate('/patients/new')} className={`nav-item ${isActive('/patients/new') ? 'active' : ''}`}>
                         New Patient
                     </button>
-                    <button className="nav-item">Patients List</button>
+                    <button onClick={() => navigate('/patients')} className={`nav-item ${isActive('/patients') ? 'active' : ''}`}>Patients List</button>
                     <button className="nav-item">Appointments</button>
                     <button className="nav-item">Settings</button>
                 </nav>
