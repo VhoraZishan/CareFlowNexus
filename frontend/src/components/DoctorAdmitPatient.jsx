@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { api } from '../api/client';
 import Layout from './Layout';
 import './DoctorAdmitPatient.css';
 
 const DoctorAdmitPatient = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const [loading, setLoading] = useState(false);
     const [fetchingPatients, setFetchingPatients] = useState(true);
     const [patients, setPatients] = useState([]);
@@ -45,21 +46,31 @@ const DoctorAdmitPatient = () => {
         const currentUser = JSON.parse(userStr);
         setUser(currentUser);
 
-        const fetchPatients = async () => {
-            try {
-                const data = await api.getPatients(currentUser.user_id);
-                // Only show patients who are registered ("created") but not yet admitted
-                const availablePatients = data.filter(p => p.status === 'created');
-                setPatients(availablePatients);
-            } catch (err) {
-                console.error("Failed to load patients", err);
-            } finally {
-                setFetchingPatients(false);
-            }
-        };
-
-        fetchPatients();
-    }, [navigate]);
+        // Check if patient data was passed via navigation state
+        if (location.state?.patient) {
+            const p = location.state.patient;
+            setPatients([p]); // Set as the only available patient
+            setSelectedPatient(p);
+            setSelectedPatientId(p.patient_id);
+            setSearchTerm(p.name);
+            setFetchingPatients(false);
+        } else {
+            // Otherwise fetch from database
+            const fetchPatients = async () => {
+                try {
+                    const data = await api.getPatients(currentUser.user_id);
+                    // Only show patients who are registered ("created") but not yet admitted
+                    const availablePatients = data.filter(p => p.status === 'created');
+                    setPatients(availablePatients);
+                } catch (err) {
+                    console.error("Failed to load patients", err);
+                } finally {
+                    setFetchingPatients(false);
+                }
+            };
+            fetchPatients();
+        }
+    }, [navigate, location.state]);
 
     const toggleDisease = (disease) => {
         setAdmissionData(prev => {
@@ -123,11 +134,18 @@ const DoctorAdmitPatient = () => {
         setLoading(true);
 
         try {
-            await api.admitPatient(selectedPatientId, {
+            const response = await api.admitPatient(selectedPatientId, {
                 user_id: user.user_id,
                 diagnosis: admissionData.diagnosis,
                 special_instructions: admissionData.special_instructions
             });
+
+            if (response.recommended_bed_id) {
+                alert(`Admission Request Successful!\n\nSuggested Bed: ${response.recommended_bed_id}\nStatus: ${response.status}\n\nThe request has been sent to the Admin for final bed confirmation.`);
+            } else {
+                alert(`Admission Request Submitted, but no suitable bed was immediately found.\n\nReason: ${response.message || response.reason}\nStatus: ${response.status}`);
+            }
+
             navigate('/doctor-dashboard');
         } catch (error) {
             console.error('Failed to admit patient', error);

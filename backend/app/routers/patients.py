@@ -42,7 +42,7 @@ def list_patients(user_id: str):
         if user["role"] == "receptionist":
             patients.append(p)
 
-        elif user["role"] == "doctor" and p["status"] in ["created", "admitted"]:
+        elif user["role"] == "doctor" and p["status"] in ["created", "admitted", "pending_confirmation", "admission_pending_bed", "bed_confirmed", "discharge_requested"]:
             patients.append(p)
 
         elif user["role"] == "nurse" and p.get("admission", {}).get("nurse_id") == user_id:

@@ -160,7 +160,7 @@ const DoctorDashboard = () => {
                                         </div>
                                     </div>
 
-                                    <button className="view-details-btn" onClick={() => navigate(`/patients/doctor-admit?id=${patient.patient_id}`)}>
+                                    <button className="view-details-btn" onClick={() => navigate('/patients/details', { state: { patient } })}>
                                         View Details
                                     </button>
                                 </div>

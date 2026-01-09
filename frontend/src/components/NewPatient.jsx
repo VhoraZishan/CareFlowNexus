@@ -21,13 +21,22 @@ const NewPatient = () => {
         e.preventDefault();
         setLoading(true);
         try {
+            const userStr = localStorage.getItem('user');
+            if (!userStr) {
+                alert('You must be logged in to create a patient.');
+                navigate('/');
+                return;
+            }
+            const user = JSON.parse(userStr);
+
             const payload = {
                 ...formData,
+                user_id: user.user_id,
                 age: parseInt(formData.age),
                 medical_history: formData.medical_history.split(',').map(s => s.trim()),
                 special_needs: formData.special_needs.split(',').map(s => s.trim())
             };
-            await api.registerPatient(payload);
+            await api.createPatient(payload);
             navigate('/patients');
         } catch (error) {
             alert('Error: ' + error.message);

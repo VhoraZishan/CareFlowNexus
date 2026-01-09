@@ -6,6 +6,7 @@ import NewPatient from './components/NewPatient';
 import PatientList from './components/PatientList';
 import DoctorDashboard from './components/DoctorDashboard';
 import DoctorAdmitPatient from './components/DoctorAdmitPatient';
+import PatientDetails from './components/PatientDetails';
 import NurseDashboard from './components/NurseDashboard';
 import CleanerDashboard from './components/CleanerDashboard';
 
@@ -21,6 +22,7 @@ function App() {
         <Route path="/nurse-dashboard" element={<NurseDashboard />} />
         <Route path="/cleaner-dashboard" element={<CleanerDashboard />} />
         <Route path="/patients/doctor-admit" element={<DoctorAdmitPatient />} />
+        <Route path="/patients/details" element={<PatientDetails />} />
         {/* Redirect unknown routes to login for now */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
