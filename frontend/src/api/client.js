@@ -1,8 +1,11 @@
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api/v1';
+const BASE_URL =
+  import.meta.env.VITE_API_URL ||
+  "https://careflownexusbackend.onrender.com/api/v1";
 
 class ApiClient {
   constructor() {
     this.baseUrl = BASE_URL;
+    console.log(`API Client initialized with base URL: ${this.baseUrl}`);
   }
 
   async request(endpoint, options = {}) {
@@ -22,9 +25,11 @@ class ApiClient {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        const errorMessage = typeof errorData.detail === 'object'
-          ? JSON.stringify(errorData.detail)
-          : (errorData.detail || `Request failed with status ${response.status}`);
+        const errorMessage =
+          typeof errorData.detail === "object"
+            ? JSON.stringify(errorData.detail)
+            : errorData.detail ||
+              `Request failed with status ${response.status}`;
         throw new Error(errorMessage);
       }
 
@@ -35,7 +40,7 @@ class ApiClient {
     }
   }
 
-  // Auth
+  // ==================== AUTH ====================
   async login(username, password) {
     return this.request("/auth/login", {
       method: "POST",
@@ -43,7 +48,7 @@ class ApiClient {
     });
   }
 
-  // Patients
+  // ==================== PATIENTS ====================
   async createPatient(patientData) {
     // patientData: { user_id, name, age, gender, medical_history, special_needs }
     return this.request("/patients", {
@@ -56,7 +61,12 @@ class ApiClient {
     return this.request(`/patients?user_id=${userId}`);
   }
 
-  // Admission
+  async getPendingConfirmations(userId) {
+    // For receptionists: patients waiting for bed confirmation
+    return this.request(`/patients/pending-confirmation?user_id=${userId}`);
+  }
+
+  // ==================== ADMISSION ====================
   async admitPatient(patientId, admissionData) {
     // admissionData: { user_id, diagnosis, special_instructions }
     return this.request(`/patients/${patientId}/admission`, {
@@ -73,7 +83,15 @@ class ApiClient {
     });
   }
 
-  // Tasks
+  async dischargePatient(patientId, userId) {
+    // Request discharge for a patient
+    return this.request(`/patients/${patientId}/discharge`, {
+      method: "POST",
+      body: JSON.stringify({ user_id: userId }),
+    });
+  }
+
+  // ==================== TASKS ====================
   async getTasks(userId) {
     return this.request(`/tasks?user_id=${userId}`);
   }
@@ -83,6 +101,30 @@ class ApiClient {
       method: "POST",
       body: JSON.stringify({ user_id: userId }),
     });
+  }
+
+  async completeTask(taskId, userId, notes = "") {
+    return this.request(`/tasks/${taskId}/complete`, {
+      method: "POST",
+      body: JSON.stringify({ user_id: userId, notes }),
+    });
+  }
+
+  // ==================== ADMIN ====================
+  async getAdminBeds(userId) {
+    return this.request(`/admin/beds?user_id=${userId}`);
+  }
+
+  async getAdminTasks(userId) {
+    return this.request(`/admin/tasks?user_id=${userId}`);
+  }
+
+  async getAdminNurses(userId) {
+    return this.request(`/admin/nurses?user_id=${userId}`);
+  }
+
+  async getAdminCleaners(userId) {
+    return this.request(`/admin/cleaners?user_id=${userId}`);
   }
 }
 
