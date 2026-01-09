@@ -1,0 +1,13 @@
+  # AI Agent Service
+  - type: web
+    name: careflow-agents
+    env: python
+    region: oregon
+    plan: free
+    buildCommand: pip install -r agents/requirements.txt
+    startCommand: cd agents && python agent_server_pure.py
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: PORT
+        value: 9000

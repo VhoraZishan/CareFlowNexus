@@ -1,0 +1,21 @@
+# render.yaml
+services:
+  # Backend API Service
+  - type: web
+    name: careflow-backend
+    env: python
+    region: oregon
+    plan: free
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: BED_AGENT_URL
+        value: https://careflow-agents.onrender.com/agent/bed-assignment
+      - key: CLEANER_AGENT_URL
+        value: https://careflow-agents.onrender.com/agent/cleaner-assignment
+      - key: NURSE_AGENT_URL
+        value: https://careflow-agents.onrender.com/agent/nurse-assignment
+      - key: FIREBASE_CRED_PATH
+        sync: false  # Upload via Render dashboard as Secret File
