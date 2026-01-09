@@ -1,6 +1,7 @@
 @echo off
 echo ================================================
-echo CareFlow AI Agent Server - Windows Startup
+echo CareFlow Pure Agent Server - Windows Startup
+echo (No Database Access - Backend Only)
 echo ================================================
 echo.
 
@@ -15,43 +16,30 @@ if not exist "venv\Scripts\activate.bat" (
 )
 
 REM Activate virtual environment
-echo [1/3] Activating virtual environment...
+echo [1/2] Activating virtual environment...
 call venv\Scripts\activate.bat
 
-REM Check if .env file exists
+REM Check if .env file exists (optional for pure server)
 if not exist ".env" (
     echo.
-    echo [WARNING] .env file not found!
-    echo Please create .env file with:
-    echo   FIREBASE_SERVICE_ACCOUNT_PATH=./config/serviceAccountKey.json
-    echo   GOOGLE_API_KEY=your_gemini_api_key
-    echo   GEMINI_MODEL=gemini-2.0-flash-exp
+    echo [INFO] .env file not found - using defaults
+    echo Pure agent server does not require database credentials
     echo.
-    pause
-    exit /b 1
 )
 
-REM Check if service account exists
-if not exist "config\serviceAccountKey.json" (
-    echo.
-    echo [WARNING] Firebase service account not found!
-    echo Please place your serviceAccountKey.json in config/ folder
-    echo.
-    pause
-    exit /b 1
-)
-
-echo [2/3] Configuration validated
-echo [3/3] Starting Agent Server...
+echo [2/2] Starting Pure Agent Server...
 echo.
 echo Server will be available at: http://localhost:9000
 echo API Documentation: http://localhost:9000/docs
 echo.
+echo THIS SERVER DOES NOT ACCESS DATABASE
+echo All data comes from backend requests
+echo.
 echo Press Ctrl+C to stop the server
 echo.
 
-REM Run the agent server
-python agent_server.py
+REM Run the PURE agent server (no database dependencies)
+python agent_server_pure.py
 
 REM Deactivate on exit
 deactivate
