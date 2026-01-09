@@ -5,6 +5,7 @@ import Dashboard from './components/Dashboard';
 import NewPatient from './components/NewPatient';
 import PatientList from './components/PatientList';
 import DoctorDashboard from './components/DoctorDashboard';
+import DoctorAdmitPatient from './components/DoctorAdmitPatient';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route path="/patients/new" element={<NewPatient />} />
         <Route path="/patients" element={<PatientList />} />
         <Route path="/doctor-dashboard" element={<DoctorDashboard />} />
+        <Route path="/patients/doctor-admit" element={<DoctorAdmitPatient />} />
         {/* Redirect unknown routes to login for now */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

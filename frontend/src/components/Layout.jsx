@@ -1,10 +1,22 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import './Layout.css';
 
 const Layout = ({ children, title, actions }) => {
     const navigate = useNavigate();
     const location = useLocation();
+
+    useEffect(() => {
+        const user = localStorage.getItem('user');
+        if (!user) {
+            navigate('/');
+        }
+    }, [navigate]);
+
+    const handleLogout = () => {
+        localStorage.removeItem('user');
+        navigate('/');
+    };
 
     const isActive = (path) => location.pathname === path;
 
@@ -24,6 +36,7 @@ const Layout = ({ children, title, actions }) => {
                     <button onClick={() => navigate('/patients')} className={`nav-item ${isActive('/patients') ? 'active' : ''}`}>Patients List</button>
                     <button className="nav-item">Appointments</button>
                     <button className="nav-item">Settings</button>
+                    <button className="nav-item_logout" onClick={handleLogout} style={{ marginTop: 'auto', color: '#ef4444' }}>Logout</button>
                 </nav>
 
                 <div className="help-desk-card">

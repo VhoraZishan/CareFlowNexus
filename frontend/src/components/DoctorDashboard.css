@@ -389,19 +389,43 @@
     color: #1e293b;
 }
 
+.card-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
 .btn-view-details {
-    width: 100%;
+    flex: 1;
     background-color: #2563eb;
     color: white;
     border: none;
-    padding: 0.75rem;
+    padding: 0.65rem;
     border-radius: 0.5rem;
     font-weight: 600;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     cursor: pointer;
     transition: background 0.2s;
 }
 
 .btn-view-details:hover {
     background-color: #1d4ed8;
+}
+
+.btn-request-discharge {
+    flex: 1;
+    background-color: white;
+    color: #ef4444;
+    border: 1px solid #fee2e2;
+    padding: 0.65rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-request-discharge:hover {
+    background-color: #fef2f2;
+    border-color: #ef4444;
 }

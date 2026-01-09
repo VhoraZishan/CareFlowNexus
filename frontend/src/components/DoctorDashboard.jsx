@@ -1,53 +1,54 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { api } from '../api/client';
 import './DoctorDashboard.css';
 
 const DoctorDashboard = () => {
     const navigate = useNavigate();
+    const [patients, setPatients] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    // Mock data based on the screenshot
-    const patients = [
-        {
-            id: 1,
-            name: "Robert Chen",
-            age: 45,
-            gender: "Male",
-            ward: "Ward A - Bed 12",
-            diagnosis: "Acute Appendicitis",
-            status: "Critical",
-            admitted: "08:30 AM",
-            discharge: "2:00 PM Tomorrow",
-            dischargeLabel: "Tomorrow"
-        },
-        {
-            id: 2,
-            name: "Sarah Miller",
-            age: 62,
-            gender: "Female",
-            ward: "Ward B - Bed 04",
-            diagnosis: "Pneumonia",
-            status: "Stable",
-            admitted: "11:15 AM",
-            discharge: "09:00 AM Thursday",
-            dischargeLabel: "Thursday"
-        },
-        {
-            id: 3,
-            name: "David Wilson",
-            age: 38,
-            gender: "Male",
-            ward: "Ward C - Bed 21",
-            diagnosis: "Post-Op Recovery (Knee)",
-            status: "Observing",
-            admitted: "Yesterday",
-            discharge: "6:00 PM Tonight",
-            dischargeLabel: "Tonight"
-        }
-    ];
+    useEffect(() => {
+        const fetchPatients = async () => {
+            try {
+                const userStr = localStorage.getItem('user');
+                if (!userStr) {
+                    navigate('/');
+                    return;
+                }
+                const user = JSON.parse(userStr);
+                const data = await api.getPatients(user.user_id);
+                // Filter for "undercare" status as requested
+                setPatients(data.filter(p => p.status?.toLowerCase() === 'undercare'));
+            } catch (err) {
+                console.error("Failed to load patients", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchPatients();
+    }, [navigate]);
+
+    const handleLogout = () => {
+        localStorage.removeItem('user');
+        navigate('/');
+    };
+
+    // Helper to extract display data
+    const getDiagnosis = (p) => {
+        if (p.admission && p.admission.diagnosis) return p.admission.diagnosis;
+        if (p.medical_history && p.medical_history.length > 0) return p.medical_history[0];
+        return "Under Observation";
+    };
+
+    const getWard = (p) => {
+        if (p.admission && p.admission.room) return `Ward ${p.admission.room}`;
+        return "Unassigned";
+    };
 
     return (
         <div className="doctor-layout">
-            {/* Sidebar */}
             <aside className="doc-sidebar">
                 <div className="doc-logo">CareFlow Nexus</div>
                 <nav className="doc-nav">
@@ -59,12 +60,13 @@ const DoctorDashboard = () => {
                     <button className="doc-nav-item">
                         <span className="icon">⚙️</span> Settings
                     </button>
+                    <button className="doc-nav-item" onClick={handleLogout} style={{ color: '#ef4444' }}>
+                        <span className="icon">🚪</span> Logout
+                    </button>
                 </div>
             </aside>
 
-            {/* Main Content */}
             <main className="doc-main">
-                {/* Top Header */}
                 <header className="doc-header">
                     <div className="doc-profile">
                         <div className="doc-avatar-circle"></div>
@@ -82,28 +84,25 @@ const DoctorDashboard = () => {
                     </div>
 
                     <div className="doc-actions">
-                        <button className="btn-admit" onClick={() => navigate('/patients/new')}>
+                        <button className="btn-admit" onClick={() => navigate('/patients/doctor-admit')}>
                             <span className="icon-plus">➕</span> Admit Patient
                         </button>
                         <button className="btn-bell">🔔</button>
                     </div>
                 </header>
 
-                {/* Dashboard Content */}
                 <div className="doc-content">
                     <div className="content-header">
                         <h1>My Admitted Patients</h1>
-                        <p>3 Admitted Patients under your care today</p>
+                        <p>{patients.length} Admitted Patients under your care</p>
                     </div>
 
                     <div className="patient-cards-grid">
-                        {patients.map(patient => (
-                            <div className="patient-card" key={patient.id}>
+                        {loading ? <p>Loading patients...</p> : patients.length === 0 ? <p>No patients currently under care.</p> : patients.map(patient => (
+                            <div className="patient-card" key={patient.patient_id}>
                                 <div className="card-top">
                                     <span className="active-badge">ACTIVE ADMISSION</span>
-                                    <span className={`status-tag ${patient.status.toLowerCase()}`}>
-                                        {patient.status.toUpperCase()}
-                                    </span>
+                                    <span className="status-tag stable">UNDER CARE</span>
                                 </div>
 
                                 <div className="card-header">
@@ -113,14 +112,14 @@ const DoctorDashboard = () => {
 
                                 <div className="card-row ward-info">
                                     <span className="icon">🛏️</span>
-                                    <span>{patient.ward}</span>
+                                    <span>{getWard(patient)}</span>
                                 </div>
 
                                 <div className="card-row diagnosis-section">
                                     <div className="icon-box">🏥</div>
                                     <div className="diagnosis-info">
                                         <span className="label">REASON FOR ADMISSION</span>
-                                        <span className="value">{patient.diagnosis}</span>
+                                        <span className="value">{getDiagnosis(patient)}</span>
                                     </div>
                                 </div>
 
@@ -129,21 +128,28 @@ const DoctorDashboard = () => {
                                         <span className="icon-arrow-in">Login</span>
                                         <div className="time-details">
                                             <span className="label">ADMITTED</span>
-                                            <span className="value">{patient.admitted}</span>
+                                            <span className="value">
+                                                {patient.created_at ? new Date(patient.created_at).toLocaleDateString() : 'Today'}
+                                            </span>
                                         </div>
                                     </div>
                                     <div className="time-block right">
                                         <span className="icon-arrow-out">Logout</span>
                                         <div className="time-details">
                                             <span className="label">DISCHARGE</span>
-                                            <span className="value">{patient.discharge}</span>
+                                            <span className="value">--</span>
                                         </div>
                                     </div>
                                 </div>
 
-                                <button className="btn-view-details">
-                                    View Details
-                                </button>
+                                <div className="card-actions">
+                                    <button className="btn-view-details">
+                                        View Details
+                                    </button>
+                                    <button className="btn-request-discharge">
+                                        Request Discharge
+                                    </button>
+                                </div>
                             </div>
                         ))}
                     </div>

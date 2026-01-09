@@ -33,10 +33,20 @@ const Dashboard = () => {
                     waitTime: { value: '14m', change: 'Avg', isPositive: true }       // Mocked
                 });
 
-                // Mock activity for now as tasks API might be empty or different format
-                setActivity([
-                    { id: 1, type: 'admission', title: 'System Ready', desc: 'Dashboard loaded successfully', time: 'Now' },
-                ]);
+                // Process recent activity from real patients
+                const sortedPatients = [...patients].sort((a, b) =>
+                    new Date(b.created_at || 0) - new Date(a.created_at || 0)
+                ).slice(0, 5);
+
+                const recentActivities = sortedPatients.map((p, index) => ({
+                    id: p.patient_id || index,
+                    type: 'admission',
+                    title: 'New Patient Registered',
+                    desc: `${p.name} (Age: ${p.age})`,
+                    time: p.created_at ? new Date(p.created_at).toLocaleDateString() : 'Just now'
+                }));
+
+                setActivity(recentActivities.length > 0 ? recentActivities : []);
 
             } catch (error) {
                 console.error('Loader error:', error);

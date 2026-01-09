@@ -52,7 +52,8 @@
     gap: 0.25rem;
 }
 
-.nav-item {
+.nav-item,
+.nav-item_logout {
     padding: 0.75rem 1rem;
     text-align: left;
     background: none;
@@ -67,6 +68,11 @@
     display: flex;
     align-items: center;
     gap: 0.75rem;
+}
+
+.nav-item_logout:hover {
+    background-color: #fef2f2;
+    color: #ef4444;
 }
 
 .nav-item:hover {
