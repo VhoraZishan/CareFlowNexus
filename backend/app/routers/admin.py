@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from app.services.firebase import db
+from app.core.firebase import db
 
 router = APIRouter(prefix="/api/v1/admin", tags=["Admin"])
 
