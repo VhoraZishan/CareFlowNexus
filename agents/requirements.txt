@@ -30,7 +30,7 @@ google-cloud-storage==2.19.0
 # Google Gemini AI (for agent_server.py full version)
 # -----------------------------------------------------------------------------
 google-generativeai==0.8.3
-google-ai-generativelanguage==0.6.11
+google-ai-generativelanguage==0.6.10
 google-auth==2.37.0
 
 # -----------------------------------------------------------------------------
