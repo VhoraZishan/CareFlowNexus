@@ -1,86 +1,90 @@
-const BASE_URL = 'http://localhost:8000/api/v1';
+const BASE_URL =
+  import.meta.env.VITE_API_URL ||
+  "https://careflownexusbackend.onrender.com/api/v1";
 
 class ApiClient {
-    constructor() {
-        this.baseUrl = BASE_URL;
+  constructor() {
+    this.baseUrl = BASE_URL;
+  }
+
+  async request(endpoint, options = {}) {
+    const url = `${this.baseUrl}${endpoint}`;
+    const headers = {
+      "Content-Type": "application/json",
+      ...options.headers,
+    };
+
+    const config = {
+      ...options,
+      headers,
+    };
+
+    try {
+      const response = await fetch(url, config);
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.detail || `Request failed with status ${response.status}`,
+        );
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error(`API Error (${endpoint}):`, error);
+      throw error;
     }
+  }
 
-    async request(endpoint, options = {}) {
-        const url = `${this.baseUrl}${endpoint}`;
-        const headers = {
-            'Content-Type': 'application/json',
-            ...options.headers,
-        };
+  // Auth
+  async login(username, password) {
+    return this.request("/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ username, password }),
+    });
+  }
 
-        const config = {
-            ...options,
-            headers,
-        };
+  // Patients
+  async createPatient(patientData) {
+    // patientData: { user_id, name, age, gender, medical_history, special_needs }
+    return this.request("/patients", {
+      method: "POST",
+      body: JSON.stringify(patientData),
+    });
+  }
 
-        try {
-            const response = await fetch(url, config);
+  async getPatients(userId) {
+    return this.request(`/patients?user_id=${userId}`);
+  }
 
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.detail || `Request failed with status ${response.status}`);
-            }
+  // Admission
+  async admitPatient(patientId, admissionData) {
+    // admissionData: { user_id, diagnosis, special_instructions }
+    return this.request(`/patients/${patientId}/admission`, {
+      method: "POST",
+      body: JSON.stringify(admissionData),
+    });
+  }
 
-            return await response.json();
-        } catch (error) {
-            console.error(`API Error (${endpoint}):`, error);
-            throw error;
-        }
-    }
+  async confirmBed(patientId, confirmationData) {
+    // confirmationData: { user_id, bed_id }
+    return this.request(`/patients/${patientId}/confirm-bed`, {
+      method: "POST",
+      body: JSON.stringify(confirmationData),
+    });
+  }
 
-    // Auth
-    async login(username, password) {
-        return this.request('/auth/login', {
-            method: 'POST',
-            body: JSON.stringify({ username, password }),
-        });
-    }
+  // Tasks
+  async getTasks(userId) {
+    return this.request(`/tasks?user_id=${userId}`);
+  }
 
-    // Patients
-    async createPatient(patientData) {
-        // patientData: { user_id, name, age, gender, medical_history, special_needs }
-        return this.request('/patients', {
-            method: 'POST',
-            body: JSON.stringify(patientData),
-        });
-    }
-
-    async getPatients(userId) {
-        return this.request(`/patients?user_id=${userId}`);
-    }
-
-    // Admission
-    async admitPatient(patientId, admissionData) {
-        // admissionData: { user_id, diagnosis, special_instructions }
-        return this.request(`/patients/${patientId}/admission`, {
-            method: 'POST',
-            body: JSON.stringify(admissionData),
-        });
-    }
-
-    async confirmBed(patientId, confirmationData) {
-        // confirmationData: { user_id, bed_id }
-        return this.request(`/patients/${patientId}/confirm-bed`, {
-            method: 'POST',
-            body: JSON.stringify(confirmationData),
-        });
-    }
-
-    // Tasks
-    async getTasks(userId) {
-        return this.request(`/tasks?user_id=${userId}`);
-    }
-
-    async acceptTask(taskId, userId) {
-        return this.request(`/tasks/${taskId}/accept`, {
-            method: 'POST',
-            body: JSON.stringify({ user_id: userId }),
-        });
-    }
+  async acceptTask(taskId, userId) {
+    return this.request(`/tasks/${taskId}/accept`, {
+      method: "POST",
+      body: JSON.stringify({ user_id: userId }),
+    });
+  }
 }
 
 export const api = new ApiClient();
