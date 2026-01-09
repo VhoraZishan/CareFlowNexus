@@ -1,9 +1,6 @@
 # =============================================================================
 # CareFlow Nexus - Agent Server Requirements
-# =============================================================================
-# This file contains ALL dependencies for both agent servers:
-# - agent_server_pure.py (minimal, no Firebase/AI)
-# - agent_server.py (full version with Firebase + Gemini AI)
+# Updated with correct versions that exist in PyPI
 # =============================================================================
 
 # -----------------------------------------------------------------------------
@@ -27,7 +24,7 @@ asyncio==3.4.3
 # -----------------------------------------------------------------------------
 firebase-admin==6.6.0
 google-cloud-firestore==2.21.0
-google-cloud-storage==2.20.0
+google-cloud-storage==2.19.0
 
 # -----------------------------------------------------------------------------
 # Google Gemini AI (for agent_server.py full version)
@@ -39,22 +36,13 @@ google-auth==2.37.0
 # -----------------------------------------------------------------------------
 # Utilities
 # -----------------------------------------------------------------------------
-tenacity==9.0.0                    # Retry logic
-python-json-logger==3.2.1          # Structured logging
+tenacity==9.0.0
+python-json-logger==3.2.1
 
 # -----------------------------------------------------------------------------
-# Testing (Development only, but included for completeness)
+# Testing (Development only)
 # -----------------------------------------------------------------------------
 pytest==8.3.4
 pytest-asyncio==0.24.0
 pytest-mock==3.14.0
 pytest-cov==6.0.0
-
-# =============================================================================
-# MINIMAL INSTALL (for agent_server_pure.py only):
-# If you only need the pure agent server without Firebase/AI:
-#
-# pip install fastapi==0.115.5 uvicorn[standard]==0.32.1 pydantic==2.10.3 python-dotenv==1.0.1
-#
-# This installs only 4 packages instead of 20+
-# =============================================================================
