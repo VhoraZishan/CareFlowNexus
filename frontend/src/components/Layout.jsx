@@ -28,15 +28,24 @@ const Layout = ({ children, title, actions }) => {
                 </div>
                 <nav className="sidebar-nav">
                     <button onClick={() => navigate('/dashboard')} className={`nav-item ${isActive('/dashboard') ? 'active' : ''}`}>
-                        Dashboard
+                        <span className="nav-icon">📊</span> Dashboard
                     </button>
                     <button onClick={() => navigate('/patients/new')} className={`nav-item ${isActive('/patients/new') ? 'active' : ''}`}>
-                        New Patient
+                        <span className="nav-icon">➕</span> New Patient
                     </button>
-                    <button onClick={() => navigate('/patients')} className={`nav-item ${isActive('/patients') ? 'active' : ''}`}>Patients List</button>
-                    <button className="nav-item">Appointments</button>
-                    <button className="nav-item">Settings</button>
-                    <button className="nav-item_logout" onClick={handleLogout} style={{ marginTop: 'auto', color: '#ef4444' }}>Logout</button>
+                    <button onClick={() => navigate('/patients')} className={`nav-item ${isActive('/patients') ? 'active' : ''}`}>
+                        <span className="nav-icon">👥</span> Patients List
+                    </button>
+                    <button className="nav-item">
+                        <span className="nav-icon">📅</span> Appointments
+                    </button>
+
+                    <button className="nav-item" style={{ marginTop: 'auto' }}>
+                        <span className="nav-icon">⚙️</span> Settings
+                    </button>
+                    <button className="nav-item_logout" onClick={handleLogout} style={{ color: '#ef4444' }}>
+                        <span className="nav-icon">⏻</span> Logout
+                    </button>
                 </nav>
 
                 <div className="help-desk-card">

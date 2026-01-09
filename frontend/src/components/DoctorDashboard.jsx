@@ -49,20 +49,38 @@ const DoctorDashboard = () => {
 
     return (
         <div className="doctor-layout">
-            <aside className="doc-sidebar">
-                <div className="doc-logo">CareFlow Nexus</div>
-                <nav className="doc-nav">
-                    <button className="doc-nav-item active">
-                        <span className="icon">👥</span> My Patients
-                    </button>
-                </nav>
-                <div className="doc-sidebar-footer">
-                    <button className="doc-nav-item">
-                        <span className="icon">⚙️</span> Settings
-                    </button>
-                    <button className="doc-nav-item" onClick={handleLogout} style={{ color: '#ef4444' }}>
-                        <span className="icon">🚪</span> Logout
-                    </button>
+            <aside className="doc-sidebar-premium">
+                <div className="sidebar-top">
+                    <div className="sidebar-logo">
+                        <h1>CareFlow Nexus</h1>
+                        <p>MEDICAL DEPARTMENT</p>
+                    </div>
+
+                    <nav className="sidebar-nav-premium">
+                        <button className="nav-btn active">
+                            <span className="nav-icon">👥</span>
+                            My Patients
+                        </button>
+                        <button className="nav-btn" style={{ marginTop: 'auto' }}>
+                            <span className="nav-icon">⚙️</span>
+                            Settings
+                        </button>
+                        <button className="nav-btn logout-nav-item" onClick={handleLogout} style={{ color: '#ef4444' }}>
+                            <span className="nav-icon">⏻</span> Logout
+                        </button>
+                    </nav>
+                </div>
+
+                <div className="sidebar-bottom">
+                    <div className="user-profile-widget">
+                        <div className="user-avatar-small">
+                            <img src={`https://ui-avatars.com/api/?name=Dr.Julian+Smith&background=2563eb&color=fff`} alt="Avatar" />
+                        </div>
+                        <div className="user-meta-small">
+                            <h4>Dr. Julian Smith</h4>
+                            <p>Shift ends 08:00 PM</p>
+                        </div>
+                    </div>
                 </div>
             </aside>
 
@@ -85,7 +103,7 @@ const DoctorDashboard = () => {
 
                     <div className="doc-actions">
                         <button className="btn-admit" onClick={() => navigate('/patients/doctor-admit')}>
-                            <span className="icon-plus">➕</span> Admit Patient
+                            <span className="icon-plus">➕</span> Add Patient
                         </button>
                         <button className="btn-bell">🔔</button>
                     </div>

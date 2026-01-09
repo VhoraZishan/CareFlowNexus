@@ -17,6 +17,51 @@ const NewPatient = () => {
         needs: ''
     });
 
+    const commonDiseases = {
+        "Cardiac": ["Hypertension", "Heart Failure", "Myocardial Infarction", "Atrial Fibrillation", "Angina", "Arrhythmia"],
+        "Respiratory": ["Pneumonia", "Asthma", "COPD", "COVID-19", "Pulmonary Embolism", "Bronchitis", "Tuberculosis"],
+        "Neurology": ["Stroke", "Seizure", "Migraine", "Parkinson's", "Alzheimer's", "Encephalopathy", "Meningitis"],
+        "Infectious": ["Sepsis", "Dengue", "Malaria", "Typhoid", "Gastroenteritis", "UTI", "Hepatitis", "Influenza"],
+        "Metabolic/Endo": ["Diabetes Type 1", "Diabetes Type 2", "Hypothyroidism", "Dehydration", "Ketoacidosis"],
+        "Gastro": ["Gastritis", "Appendicitis", "Pancreatitis", "Cholecystitis", "Cirrhosis", "Crohn's Disease"],
+        "Orthopedic": ["Fracture", "Osteoarthritis", "Gout", "Rheumatoid Arthritis", "Disk Herniation"],
+        "Nephrology": ["Acute Renal Failure", "Chronic Kidney Disease", "Kidney Stones", "Nephrotic Syndrome"],
+        "Oncology": ["Leukemia", "Lymphoma", "Breast Cancer", "Lung Cancer", "Colon Cancer"],
+        "Psychiatry": ["Depression", "Anxiety", "Schizophrenia", "Bipolar Disorder"],
+        "General/Surgical": ["Post-Op Recovery", "Abscess", "Laceration", "Hernia", "Acute Pain"]
+    };
+
+    const [activeCategory, setActiveCategory] = useState("Cardiac");
+    const [diseaseSearch, setDiseaseSearch] = useState("");
+
+    const toggleDisease = (disease) => {
+        setFormData(prev => {
+            const currentReason = prev.reason;
+            let updated;
+            if (currentReason.includes(disease)) {
+                updated = currentReason.split(', ').filter(d => d !== disease).join(', ');
+            } else {
+                updated = currentReason ? `${currentReason}, ${disease}` : disease;
+            }
+            return { ...prev, reason: updated };
+        });
+    };
+
+    const getVisibleDiseases = () => {
+        if (diseaseSearch) {
+            const allResults = [];
+            Object.values(commonDiseases).forEach(list => {
+                list.forEach(d => {
+                    if (d.toLowerCase().includes(diseaseSearch.toLowerCase())) {
+                        allResults.push(d);
+                    }
+                });
+            });
+            return allResults;
+        }
+        return commonDiseases[activeCategory] || [];
+    };
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({
@@ -139,16 +184,63 @@ const NewPatient = () => {
                                 <h3>Clinical Details</h3>
                             </div>
 
+                            <div className="disease-selection-container-new">
+                                <div className="selection-navbar-admin">
+                                    <label className="input-label-small">QUICK SELECT ADMISSION REASON</label>
+                                    <input
+                                        type="text"
+                                        placeholder="🔍 Search reason..."
+                                        className="disease-mini-search-admin"
+                                        value={diseaseSearch}
+                                        onChange={(e) => setDiseaseSearch(e.target.value)}
+                                        disabled={loading}
+                                    />
+                                </div>
+
+                                {!diseaseSearch && (
+                                    <div className="category-tabs-admin">
+                                        {Object.keys(commonDiseases).map(cat => (
+                                            <button
+                                                key={cat}
+                                                type="button"
+                                                className={`cat-tab-admin ${activeCategory === cat ? 'active' : ''}`}
+                                                onClick={() => setActiveCategory(cat)}
+                                                disabled={loading}
+                                            >
+                                                {cat}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+
+                                <div className="disease-tag-cloud-admin animate-fade-in">
+                                    {getVisibleDiseases().map(disease => (
+                                        <button
+                                            key={disease}
+                                            type="button"
+                                            className={`disease-select-tag ${formData.reason.includes(disease) ? 'active' : ''}`}
+                                            onClick={() => toggleDisease(disease)}
+                                            disabled={loading}
+                                        >
+                                            {disease}
+                                        </button>
+                                    ))}
+                                    {getVisibleDiseases().length === 0 && (
+                                        <p className="no-tags-admin">No matching reasons found.</p>
+                                    )}
+                                </div>
+                            </div>
+
                             <div className="form-row">
                                 <div className="form-group full-width">
-                                    <label>REASON FOR ADMISSION / CURRENT PROBLEM</label>
+                                    <label>FINAL ADMISSION REASON / CURRENT PROBLEM</label>
                                     <textarea
                                         name="reason"
-                                        rows="3"
+                                        rows="1"
                                         value={formData.reason}
                                         onChange={handleChange}
-                                        placeholder="Describe the acute problem or reason for this admission..."
-                                        className="form-textarea"
+                                        placeholder="Standardized reason will appear here..."
+                                        className="form-textarea auto-height"
                                     ></textarea>
                                 </div>
                             </div>
