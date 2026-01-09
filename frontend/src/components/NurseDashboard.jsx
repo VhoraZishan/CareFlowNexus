@@ -6,21 +6,42 @@ import './NurseDashboard.css';
 const NurseDashboard = () => {
     const navigate = useNavigate();
     const [user, setUser] = useState(null);
-    const [tasks, setTasks] = useState([
-        { id: 1, patient: 'Robert Chen', room: '302', type: 'Check Vital Signs', details: 'Record BP, SpO2, and Heart Rate.', priority: 'urgent', due: '10:30 AM', current: '10:15 AM', status: 'IN PROGRESS' },
-        { id: 2, patient: 'Elena Rodriguez', room: '308', type: 'Pain Medication Delivery', details: 'Administer prescribed IV analgesics.', priority: 'normal', due: '11:00 AM', status: 'READY' }
-    ]);
-    const [queue, setQueue] = useState([
-        { id: 3, patient: 'Sarah Miller', room: '305', type: 'Medication', priority: 'medium', due: '11:15 AM', timeMeta: 'IN 1HR' },
-        { id: 4, patient: 'James Wilson', room: '310', type: 'Wound Dressing', priority: 'low', due: '12:00 PM', timeMeta: 'LATER' },
-        { id: 5, patient: 'Linda Gray', room: '312', type: 'Post-Op Check', priority: 'normal', due: '01:30 PM', timeMeta: 'AFTERNOON' }
-    ]);
+    const [tasks, setTasks] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const userStr = localStorage.getItem('user');
-        if (!userStr) { navigate('/'); return; }
-        setUser(JSON.parse(userStr));
+        const fetchTasks = async () => {
+            try {
+                const userStr = localStorage.getItem('user');
+                if (!userStr) {
+                    navigate('/');
+                    return;
+                }
+                const parsedUser = JSON.parse(userStr);
+                setUser(parsedUser);
+
+                // Fetch real tasks
+                const data = await api.getTasks(parsedUser.user_id);
+                setTasks(data || []);
+            } catch (err) {
+                console.error("Failed to load tasks", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchTasks();
     }, [navigate]);
+
+    const handleLogout = () => {
+        localStorage.removeItem('user');
+        navigate('/');
+    };
+
+    // Separate tasks (mock logic for now since backend might just return a flat list)
+    // Assuming backend returns a list of task objects
+    const currentTasks = tasks.filter(t => t.status === 'IN PROGRESS' || t.priority === 'urgent');
+    const queueTasks = tasks.filter(t => t.status !== 'IN PROGRESS' && t.priority !== 'urgent');
 
     return (
         <div className="nurse-layout-premium">
@@ -37,19 +58,22 @@ const NurseDashboard = () => {
                     <button className="n-nav-btn">
                         <span className="icon">👥</span> My Patients
                     </button>
+                    <button className="n-nav-btn" onClick={handleLogout}>
+                        <span className="icon"></span> Logout
+                    </button>
                 </nav>
 
                 <div className="sidebar-bottom-profile">
                     <div className="profile-card">
                         <div className="avatar">
-                            <img src={`https://ui-avatars.com/api/?name=Nurse+Taylor&background=10b981&color=fff&bold=true`} alt="Nurse" />
+                            <img src={`https://ui-avatars.com/api/?name=${user?.name || user?.user_id || 'Nurse'}&background=10b981&color=fff&bold=true`} alt="Nurse" />
                         </div>
                         <div className="meta">
-                            <h4>Nurse Taylor</h4>
+                            <h4>{user?.name || user?.user_id}</h4>
                             <p>Shift ends 07:00 PM</p>
                         </div>
-                        <button className="logout-btn" onClick={() => { localStorage.removeItem('user'); navigate('/'); }}>
-                            ➔
+                        <button className="logout-btn" onClick={handleLogout} title="Logout">
+                            ⏻
                         </button>
                     </div>
                 </div>
@@ -76,53 +100,51 @@ const NurseDashboard = () => {
                     <div className="col-current">
                         <div className="col-header">
                             <h3>Current Tasks</h3>
-                            <span className="count-tag">3 Active</span>
+                            <span className="count-tag">{currentTasks.length} Active</span>
                         </div>
 
-                        <div className="task-stack-main">
-                            {tasks.map(task => (
-                                <div key={task.id} className={`task-card-large ${task.priority}`}>
-                                    <div className="card-top-row">
-                                        <div className="priority-text">
-                                            {task.priority.toUpperCase()} PRIORITY
+                        {loading ? (
+                            <div className="loading-state">Syncing tasks...</div>
+                        ) : currentTasks.length === 0 ? (
+                            <div className="empty-state">No urgent tasks at the moment.</div>
+                        ) : (
+                            <div className="task-stack-main">
+                                {currentTasks.map(task => (
+                                    <div key={task.id} className={`task-card-large ${task.priority}`}>
+                                        <div className="card-top-row">
+                                            <div className="priority-text">
+                                                {task.priority?.toUpperCase() || 'NORMAL'} PRIORITY
+                                            </div>
+                                            <div className="time-text">
+                                                <strong>Due {task.due || 'ASAP'}</strong>
+                                                <span className="sub-time">Current: {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                            </div>
                                         </div>
-                                        <div className="time-text">
-                                            <strong>Due {task.due}</strong>
-                                            {task.current && <span className="sub-time">Current: {task.current}</span>}
-                                            {!task.current && <span className="sub-time">Scheduled</span>}
-                                        </div>
-                                    </div>
 
-                                    <div className="patient-header">
-                                        <h3>{task.patient} <span className="divider">|</span> Room {task.room}</h3>
-                                    </div>
+                                        <div className="patient-header">
+                                            <h3>{task.patient_name || 'Unknown Patient'} <span className="divider">|</span> Room {task.room || 'TBD'}</h3>
+                                        </div>
 
-                                    <div className="task-detail-box">
-                                        <div className="icon-box">
-                                            {task.type.includes('Vital') ? '📈' : '💊'}
+                                        <div className="task-detail-box">
+                                            <div className="icon-box">
+                                                {(task.type || '').includes('Vital') ? '📈' : '💊'}
+                                            </div>
+                                            <div className="detail-text">
+                                                <h5>{task.type || 'General Task'}</h5>
+                                                <p>{task.details || 'No additional details provided.'}</p>
+                                            </div>
+                                            <div className="status-pill-right">
+                                                {task.status === 'IN PROGRESS' ? '◉ IN PROGRESS' : '🕒 READY'}
+                                            </div>
                                         </div>
-                                        <div className="detail-text">
-                                            <h5>{task.type}</h5>
-                                            <p>{task.details}</p>
-                                        </div>
-                                        <div className="status-pill-right">
-                                            {task.status === 'IN PROGRESS' ? '◉ IN PROGRESS' : '🕒 READY'}
-                                        </div>
-                                    </div>
 
-                                    <div className="action-row">
-                                        {task.status === 'IN PROGRESS' ? (
-                                            <>
-                                                <button className="btn-white">Delegate</button>
-                                                <button className="btn-blue">Mark as Done</button>
-                                            </>
-                                        ) : (
-                                            <button className="btn-blue full">Start Task</button>
-                                        )}
+                                        <div className="action-row">
+                                            <button className="btn-blue full">Mark as Done</button>
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
-                        </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     {/* Right Column: Queue */}
@@ -132,27 +154,33 @@ const NurseDashboard = () => {
                             <button className="filter-icon">≡</button>
                         </div>
 
-                        <div className="queue-list">
-                            {queue.map(q => (
-                                <div key={q.id} className="queue-card">
-                                    <div className="q-top">
-                                        <span className={`q-tag ${q.priority}`}>{q.priority.toUpperCase()}</span>
-                                        <div className="q-time">
-                                            <strong>{q.due}</strong>
-                                            <span>{q.timeMeta}</span>
+                        {loading ? (
+                            <div className="loading-state">Loading queue...</div>
+                        ) : queueTasks.length === 0 ? (
+                            <div className="empty-state">Queue is empty.</div>
+                        ) : (
+                            <div className="queue-list">
+                                {queueTasks.map(q => (
+                                    <div key={q.id} className="queue-card">
+                                        <div className="q-top">
+                                            <span className={`q-tag ${q.priority || 'normal'}`}>{q.priority?.toUpperCase() || 'NORMAL'}</span>
+                                            <div className="q-time">
+                                                <strong>{q.due || 'Today'}</strong>
+                                                <span>LATER</span>
+                                            </div>
+                                        </div>
+                                        <div className="q-main">
+                                            <h4>{q.patient_name || 'Unknown'}</h4>
+                                            <p>Room {q.room || '-'} • {q.type || 'Task'}</p>
+                                        </div>
+                                        <div className="q-actions">
+                                            <button className="link-text">Review Notes</button>
+                                            <button className="outline-btn">Start Task</button>
                                         </div>
                                     </div>
-                                    <div className="q-main">
-                                        <h4>{q.patient}</h4>
-                                        <p>Room {q.room} • {q.type}</p>
-                                    </div>
-                                    <div className="q-actions">
-                                        <button className="link-text">Review Notes</button>
-                                        <button className="outline-btn">Accept Task</button>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
             </main>

@@ -38,6 +38,8 @@ const Login = () => {
         navigate('/doctor-dashboard');
       } else if (response.role === 'nurse') {
         navigate('/nurse-dashboard');
+      } else if (response.role === 'cleaner') {
+        navigate('/cleaner-dashboard');
       } else {
         navigate('/dashboard');
       }
