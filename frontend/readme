@@ -1,0 +1,30 @@
+# Frontend Documentation
+
+## CareFlow Nexus UI
+
+**Framework:** React (Vite)
+**Styling:** CSS Modules / Vanilla CSS
+
+### Project Structure
+- `src/components/Login.jsx`: The main login component.
+- `src/components/Login.css`: Styles specific to the login component.
+- `src/index.css`: Global styles and CSS variables.
+- `src/App.jsx`: Main application wrapper.
+
+### Components
+
+#### Login Component (`src/components/Login.jsx`)
+A minimalist login form that authenticates users.
+- **State**: Manages `loginId` and `password`.
+- **UI Elements**:
+  - Login ID Input
+  - Password Input
+  - Sign In Button
+  - Forgot Password Link
+  - Support Footer
+- **Design reference**: Uses variables from `index.css` for consistent theming.
+
+### Development
+1. Install dependencies: `npm install`
+2. Run dev server: `npm run dev`
+3. Build for production: `npm run build`
