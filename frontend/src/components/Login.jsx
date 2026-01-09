@@ -33,7 +33,12 @@ const Login = () => {
       // Store user info
       localStorage.setItem('user', JSON.stringify(response)); // { user_id, role }
 
-      navigate('/dashboard');
+      // Redirect based on role
+      if (response.role === 'doctor') {
+        navigate('/doctor-dashboard');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (err) {
       setError(err.message || 'Login failed. Please check your credentials.');
     } finally {
