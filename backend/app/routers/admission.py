@@ -1,7 +1,8 @@
 from app.core.firebase import db
 from app.models.schemas import AdmissionRequest, ConfirmBedRequest
-from app.services.agents import call_bed_agent
+from app.services.agents import call_bed_agent, call_cleaner_agent, call_nurse_agent
 from app.services.role_guard import require_role
+from app.services.tasks import create_task
 from fastapi import APIRouter, HTTPException
 
 router = APIRouter(prefix="/patients")
@@ -94,14 +95,57 @@ def confirm_bed(patient_id: str, data: ConfirmBedRequest):
     require_role(data.user_id, ["receptionist"])
 
     patient_ref = db.collection("patients").document(patient_id)
+    patient = patient_ref.get().to_dict()
     bed_ref = db.collection("beds").document(data.bed_id)
+    bed = bed_ref.get().to_dict()
 
-    # Update patient
+    # Update patient status to "bed_confirmed"
     patient_ref.update(
-        {"status": "admitted", "admission.confirmed_bed_id": data.bed_id}
+        {
+            "status": "bed_confirmed",
+            "admission.confirmed_bed_id": data.bed_id,
+            "admission.confirmed_by": data.user_id,
+        }
     )
 
     # Lock bed
     bed_ref.update({"occupied": True, "current_patient_id": patient_id})
 
-    return {"status": "admitted"}
+    # ✅ SPECIFICATION: Call CLEANER AGENT for pre-admission bed preparation
+    # Section 3.3: "Called when bed is confirmed for admission"
+    cleaners = [
+        c.to_dict()
+        for c in db.collection("users")
+        .where("role", "==", "cleaner")
+        .where("active", "==", True)
+        .stream()
+    ]
+
+    # Call cleaner agent with "pre_admission" context
+    cleaner_result = call_cleaner_agent(bed, cleaners, context="pre_admission")
+    print("CLEANER AGENT RESULT (pre_admission) =", cleaner_result)
+
+    cleaner_id = cleaner_result.get("selected_cleaner_id")
+
+    if cleaner_id:
+        # Create cleaner task for bed preparation
+        create_task(
+            task_type="cleaning",
+            role="cleaner",
+            patient_id=patient_id,
+            bed_id=data.bed_id,
+            assigned_to=cleaner_id,
+        )
+
+        return {
+            "status": "bed_confirmed",
+            "message": "Bed confirmed. Cleaner assigned for preparation.",
+            "assigned_cleaner_id": cleaner_id,
+            "next_step": "Cleaner must prepare bed, then nurse will be assigned",
+        }
+    else:
+        return {
+            "status": "bed_confirmed",
+            "message": "Bed confirmed but no cleaner available",
+            "warning": "Manual bed preparation required",
+        }
