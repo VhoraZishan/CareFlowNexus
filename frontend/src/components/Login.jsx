@@ -50,55 +50,90 @@ const Login = () => {
 
   return (
     <div className="login-container">
-      <div className="login-card">
-        <header className="login-header">
-          <h1>Welcome Back</h1>
-          <p>Please enter your details to sign in.</p>
-        </header>
+      <div className="login-split-wrapper">
 
-        {error && <div className="error-message">{error}</div>}
-
-        <form className="login-form" onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="loginId">Login ID</label>
-            <input
-              type="text"
-              id="loginId"
-              name="loginId"
-              value={formData.loginId}
-              onChange={handleChange}
-              placeholder="Enter your ID"
-              required
-            />
+        {/* Left Side - Visual & Branding */}
+        <div className="login-visual-side">
+          <div className="visual-overlay"></div>
+          <div className="visual-content">
+            <div className="brand-logo-large">
+              <span className="logo-icon">✤</span>
+              <span>CareFlow Nexus</span>
+            </div>
+            <div className="visual-text">
+              <h2>Streamlined Healthcare <br /> Management</h2>
+              <p>Experience the next generation of hospital administration and patient care coordination.</p>
+            </div>
           </div>
+        </div>
 
-          <div className="form-group">
-            <label htmlFor="password">Password</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="Enter your password"
-              required
-            />
+        {/* Right Side - Login Form */}
+        <div className="login-form-side">
+          <div className="form-content-wrapper">
+            <header className="login-header">
+              <h3>Welcome Back</h3>
+              <p>Please sign in to your account</p>
+            </header>
+
+            {error && <div className="error-message">{error}</div>}
+
+            <form className="login-form" onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label htmlFor="loginId">Login ID</label>
+                <div className="input-wrapper">
+                  <input
+                    type="text"
+                    id="loginId"
+                    name="loginId"
+                    value={formData.loginId}
+                    onChange={handleChange}
+                    placeholder="Enter Login ID"
+                    required
+                  />
+                  <span className="input-focus-border"></span>
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="password">Password</label>
+                <div className="input-wrapper">
+                  <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    placeholder="Enter Password"
+                    required
+                  />
+                  <span className="input-focus-border"></span>
+                </div>
+                <button
+                  type="button"
+                  className="forgot-password-link"
+                  onClick={() => alert('Please contact the System Administrator to reset your password.')}
+                >
+                  Forgot password?
+                </button>
+              </div>
+
+              <button type="submit" className="sign-in-btn" disabled={loading}>
+                {loading ? (
+                  <span className="loading-spinner"></span>
+                ) : (
+                  <>
+                    Sign In <span className="arrow-icon">→</span>
+                  </>
+                )}
+              </button>
+            </form>
+
+            <footer className="login-footer">
+              <p>Need support? <a href="mailto:admin@careflownexus.com" className="contact-link">Contact Admin</a></p>
+              <p className="copyright-text">Restricted Access • CareFlow Nexus System</p>
+            </footer>
           </div>
-
-          <div className="form-actions">
-            <a href="#" className="forgot-password">Forgot Password?</a>
-          </div>
-
-          <button type="submit" className="sign-in-btn" disabled={loading}>
-            {loading ? 'Signing In...' : 'Sign In'}
-          </button>
-        </form>
-
-        <footer className="login-footer">
-          <p>
-            Need support? <a href="#">Contact Admin</a>
-          </p>
-        </footer>
+        </div>
       </div>
     </div>
   );

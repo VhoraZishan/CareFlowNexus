@@ -7,6 +7,7 @@ const DoctorDashboard = () => {
     const navigate = useNavigate();
     const [patients, setPatients] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [user, setUser] = useState(null);
 
     useEffect(() => {
         const fetchPatients = async () => {
@@ -16,10 +17,12 @@ const DoctorDashboard = () => {
                     navigate('/');
                     return;
                 }
-                const user = JSON.parse(userStr);
-                const data = await api.getPatients(user.user_id);
-                // Filter for "undercare" status as requested
-                setPatients(data.filter(p => p.status?.toLowerCase() === 'undercare'));
+                const parsedUser = JSON.parse(userStr);
+                setUser(parsedUser);
+                const data = await api.getPatients(parsedUser.user_id);
+                // The backend returns 'created' or 'admitted' for doctors
+                // Let's show all of them if they are returned
+                setPatients(data);
             } catch (err) {
                 console.error("Failed to load patients", err);
             } finally {
@@ -35,142 +38,135 @@ const DoctorDashboard = () => {
         navigate('/');
     };
 
-    // Helper to extract display data
-    const getDiagnosis = (p) => {
-        if (p.admission && p.admission.diagnosis) return p.admission.diagnosis;
-        if (p.medical_history && p.medical_history.length > 0) return p.medical_history[0];
-        return "Under Observation";
-    };
-
-    const getWard = (p) => {
-        if (p.admission && p.admission.room) return `Ward ${p.admission.room}`;
-        return "Unassigned";
+    // Helper for priority demo 
+    const getPriority = (status) => {
+        if (status === 'critical') return 'high';
+        if (status === 'admitted') return 'normal';
+        return 'low';
     };
 
     return (
         <div className="doctor-layout">
             <aside className="doc-sidebar-premium">
-                <div className="sidebar-top">
-                    <div className="sidebar-logo">
-                        <h1>CareFlow Nexus</h1>
-                        <p>MEDICAL DEPARTMENT</p>
-                    </div>
-
-                    <nav className="sidebar-nav-premium">
-                        <button className="nav-btn active">
-                            <span className="nav-icon">👥</span>
-                            My Patients
-                        </button>
-                        <button className="nav-btn" style={{ marginTop: 'auto' }}>
-                            <span className="nav-icon">⚙️</span>
-                            Settings
-                        </button>
-                        <button className="nav-btn logout-nav-item" onClick={handleLogout} style={{ color: '#ef4444' }}>
-                            <span className="nav-icon">⏻</span> Logout
-                        </button>
-                    </nav>
+                <div className="sidebar-logo">
+                    <h1>CareFlow Nexus</h1>
                 </div>
+
+                <nav className="sidebar-nav-premium">
+                    <button className="nav-btn active">
+                        Dashboard
+                    </button>
+                    <button className="nav-btn" onClick={() => navigate('/patients/doctor-admit')}>
+                        Add Patient
+                    </button>
+                    <button className="nav-btn" onClick={handleLogout}>
+                        Logout
+                    </button>
+                </nav>
 
                 <div className="sidebar-bottom">
                     <div className="user-profile-widget">
                         <div className="user-avatar-small">
-                            <img src={`https://ui-avatars.com/api/?name=Dr.Julian+Smith&background=2563eb&color=fff`} alt="Avatar" />
+                            <img src={`https://ui-avatars.com/api/?name=${user?.role || 'Doctor'}&background=3b82f6&color=fff&bold=true`} alt="Avatar" />
                         </div>
                         <div className="user-meta-small">
-                            <h4>Dr. Julian Smith</h4>
-                            <p>Shift ends 08:00 PM</p>
+                            <h4>{user?.role === 'doctor' ? 'Clinical Lead' : 'Staff Member'}</h4>
+                            <p>{user?.user_id}</p>
                         </div>
+                        <button className="logout-icon-btn" onClick={handleLogout} title="Logout">
+                            <span>⏻</span>
+                        </button>
                     </div>
                 </div>
             </aside>
 
             <main className="doc-main">
                 <header className="doc-header">
-                    <div className="doc-profile">
-                        <div className="doc-avatar-circle"></div>
-                        <div className="doc-info">
-                            <h4 className="doc-name">Dr. Julian Smith</h4>
-                            <div className="doc-status">
-                                <span className="status-dot"></span> Shift Status: Active
-                            </div>
-                        </div>
+                    <div className="header-left">
+                        <h2>Dr. {user?.name || user?.user_id}</h2>
+                        <span className="status-badge">ON SHIFT</span>
                     </div>
 
-                    <div className="doc-search">
-                        <span className="search-icon">🔍</span>
-                        <input type="text" placeholder="Search patients, wards..." />
-                    </div>
-
-                    <div className="doc-actions">
-                        <button className="btn-admit" onClick={() => navigate('/patients/doctor-admit')}>
-                            <span className="icon-plus">➕</span> Add Patient
+                    <div className="header-right">
+                        <button className="add-patient-btn-header" onClick={() => navigate('/patients/doctor-admit')}>
+                            + Add Patient
                         </button>
-                        <button className="btn-bell">🔔</button>
+                        <div className="doc-search">
+                            <span className="search-icon">🔍</span>
+                            <input type="text" placeholder="Search patients..." />
+                        </div>
+                        <button className="notification-btn">🔔</button>
                     </div>
                 </header>
 
-                <div className="doc-content">
-                    <div className="content-header">
-                        <h1>My Admitted Patients</h1>
-                        <p>{patients.length} Admitted Patients under your care</p>
+                <div className="doc-grid-container">
+                    <div className="content-header-row">
+                        <div className="title-group">
+                            <h2>My Admitted Patients</h2>
+                            <p className="subtitle">{patients.length} Admitted Patients under your care today</p>
+                        </div>
                     </div>
 
-                    <div className="patient-cards-grid">
-                        {loading ? <p>Loading patients...</p> : patients.length === 0 ? <p>No patients currently under care.</p> : patients.map(patient => (
-                            <div className="patient-card" key={patient.patient_id}>
-                                <div className="card-top">
-                                    <span className="active-badge">ACTIVE ADMISSION</span>
-                                    <span className="status-tag stable">UNDER CARE</span>
-                                </div>
-
-                                <div className="card-header">
-                                    <h3>{patient.name}</h3>
-                                    <span className="demographics">{patient.age}, {patient.gender}</span>
-                                </div>
-
-                                <div className="card-row ward-info">
-                                    <span className="icon">🛏️</span>
-                                    <span>{getWard(patient)}</span>
-                                </div>
-
-                                <div className="card-row diagnosis-section">
-                                    <div className="icon-box">🏥</div>
-                                    <div className="diagnosis-info">
-                                        <span className="label">REASON FOR ADMISSION</span>
-                                        <span className="value">{getDiagnosis(patient)}</span>
+                    {loading ? (
+                        <div className="loading-state">Syncing medical records...</div>
+                    ) : patients.length === 0 ? (
+                        <div className="empty-state">No active patient records found.</div>
+                    ) : (
+                        <div className="patient-card-grid">
+                            {patients.map((patient) => (
+                                <div className="patient-item-card" key={patient.patient_id}>
+                                    <div className="card-header-v2">
+                                        <span className="admission-tag">ACTIVE ADMISSION</span>
+                                        <span className={`priority-tag-pill ${getPriority(patient.status)}`}>
+                                            {patient.status.toUpperCase()}
+                                        </span>
                                     </div>
-                                </div>
 
-                                <div className="time-row">
-                                    <div className="time-block">
-                                        <span className="icon-arrow-in">Login</span>
-                                        <div className="time-details">
-                                            <span className="label">ADMITTED</span>
-                                            <span className="value">
-                                                {patient.created_at ? new Date(patient.created_at).toLocaleDateString() : 'Today'}
-                                            </span>
+                                    <div className="card-top-main">
+                                        <div className="patient-basic">
+                                            <h3>{patient.name}</h3>
+                                            <span className="age-gender">{patient.age}, {patient.gender}</span>
+                                        </div>
+                                        <div className="ward-info">
+                                            <span className="icon">🏥</span>
+                                            Ward {patient.ward || 'A'} - Bed {patient.bed || '01'}
                                         </div>
                                     </div>
-                                    <div className="time-block right">
-                                        <span className="icon-arrow-out">Logout</span>
-                                        <div className="time-details">
-                                            <span className="label">DISCHARGE</span>
-                                            <span className="value">--</span>
+
+                                    <div className="card-detail-section">
+                                        <div className="detail-item">
+                                            <span className="icon">📝</span>
+                                            <div className="detail-text">
+                                                <label>REASON FOR ADMISSION</label>
+                                                <p>{patient.medical_history?.[0] || 'General Admission'}</p>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <div className="card-actions">
-                                    <button className="btn-view-details">
+                                    <div className="card-timing-grid">
+                                        <div className="time-block">
+                                            <span className="arrow">➔</span>
+                                            <div className="time-data">
+                                                <label>ADMITTED</label>
+                                                <p>08:30 AM</p>
+                                            </div>
+                                        </div>
+                                        <div className="time-block">
+                                            <span className="arrow logout">←</span>
+                                            <div className="time-data">
+                                                <label>DISCHARGE</label>
+                                                <p>2:00 PM Tomorrow</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <button className="view-details-btn" onClick={() => navigate(`/patients/doctor-admit?id=${patient.patient_id}`)}>
                                         View Details
                                     </button>
-                                    <button className="btn-request-discharge">
-                                        Request Discharge
-                                    </button>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </main>
         </div>

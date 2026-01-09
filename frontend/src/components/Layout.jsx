@@ -1,85 +1,84 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import './Layout.css';
 
-const Layout = ({ children, title, actions }) => {
+const Layout = ({ children, title }) => {
     const navigate = useNavigate();
     const location = useLocation();
+    const [user, setUser] = useState(null);
 
     useEffect(() => {
-        const user = localStorage.getItem('user');
-        if (!user) {
-            navigate('/');
-        }
-    }, [navigate]);
-
-    const handleLogout = () => {
-        localStorage.removeItem('user');
-        navigate('/');
-    };
+        const userStr = localStorage.getItem('user');
+        if (userStr) setUser(JSON.parse(userStr));
+    }, []);
 
     const isActive = (path) => location.pathname === path;
 
     return (
-        <div className="layout-container">
+        <div className="admin-layout">
             <aside className="sidebar">
-                <div className="sidebar-header">
-                    <h2>CareFlow Nexus</h2>
+                <div className="sidebar-brand-top">
+                    <h1>CareFlow Nexus</h1>
+                    <p>Admin Portal</p>
                 </div>
+
                 <nav className="sidebar-nav">
                     <button onClick={() => navigate('/dashboard')} className={`nav-item ${isActive('/dashboard') ? 'active' : ''}`}>
-                        <span className="nav-icon">📊</span> Dashboard
+                        Dashboard
                     </button>
                     <button onClick={() => navigate('/patients/new')} className={`nav-item ${isActive('/patients/new') ? 'active' : ''}`}>
-                        <span className="nav-icon">➕</span> New Patient
+                        New Patient
                     </button>
                     <button onClick={() => navigate('/patients')} className={`nav-item ${isActive('/patients') ? 'active' : ''}`}>
-                        <span className="nav-icon">👥</span> Patients List
+                        Patients List
                     </button>
                     <button className="nav-item">
-                        <span className="nav-icon">📅</span> Appointments
+                        Appointments
                     </button>
-
-                    <button className="nav-item" style={{ marginTop: 'auto' }}>
-                        <span className="nav-icon">⚙️</span> Settings
+                    <button className="nav-item">
+                        Settings
                     </button>
-                    <button className="nav-item_logout" onClick={handleLogout} style={{ color: '#ef4444' }}>
-                        <span className="nav-icon">⏻</span> Logout
+                    <button className="nav-item logout-nav-btn" onClick={() => { localStorage.removeItem('user'); navigate('/'); }}>
+                        Log Out
                     </button>
                 </nav>
 
-                <div className="help-desk-card">
-                    <h4>HELP DESK</h4>
-                    <p>Need assistance with automated assignment?</p>
-                    <a href="#">Contact Support &rarr;</a>
-                </div>
-
                 <div className="sidebar-footer">
-                    <div className="user-info">
-                        <div className="avatar">AD</div>
-                        <div className="user-details">
-                            <span className="user-name">Sarah Jenkins</span>
-                            <span className="user-role">Head Receptionist</span>
+                    <div className="help-desk-card">
+                        <h4>HELP DESK</h4>
+                        <p>Need assistance with automated assignment?</p>
+                        <button className="contact-link">Contact Support →</button>
+                    </div>
+
+                    <div className="sidebar-user-profile">
+                        <div className="user-avatar-premium">
+                            <img src={`https://ui-avatars.com/api/?name=${user?.role || 'Admin'}&background=2563eb&color=fff&bold=true`} alt="Avatar" />
+                        </div>
+                        <div className="user-info-text">
+                            <h4>{user?.name || user?.user_id || 'Administrator'}</h4>
+                            <p>Active Session</p>
                         </div>
                     </div>
                 </div>
             </aside>
 
             <main className="main-content">
-                <header className="top-bar">
-                    <h1 className="page-title">{title}</h1>
-                    <div className="header-right">
-                        <div className="search-bar">
+                <header className="admin-header">
+                    <div className="header-session-info">
+                        <span className="session-status">● Session Active</span>
+                        <span className="session-time">1h 24m</span>
+                    </div>
+
+                    <div className="header-actions">
+                        <div className="header-search">
+                            <span>🔍</span>
                             <input type="text" placeholder="Search medical records..." />
                         </div>
-                        <div className="actions">
-                            {actions}
-                            <button className="icon-btn">🔔</button>
-                        </div>
+                        <button className="icon-btn">🔔</button>
                     </div>
                 </header>
 
-                <div className="content-scrollable">
+                <div className="content-scroll-container">
                     {children}
                 </div>
             </main>
