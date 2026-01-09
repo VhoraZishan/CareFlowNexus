@@ -230,42 +230,159 @@ def score_bed_match(
 
 def score_cleaner_workload(cleaner: Dict[str, Any], context: str) -> Dict[str, Any]:
     """
-    Score cleaner based on workload
+    Score cleaner based on workload, experience, specialties, and skills
+    Uses detailed profiles created in database initialization
     Pure function - deterministic scoring
     """
     current_tasks = cleaner.get("current_tasks", 0)
     cleaner_id = cleaner.get("cleaner_id") or cleaner.get("user_id")
     name = cleaner.get("name", f"Cleaner {cleaner_id}")
 
-    # Calculate score (inverse of workload)
-    # 0 tasks = 100 points, each task reduces score by 20
-    score = max(0, 100 - (current_tasks * 20))
+    # Get detailed profile data
+    experience_years = cleaner.get("experience_years", 0)
+    specialties = cleaner.get("specialties", [])
+    certifications = cleaner.get("certifications", [])
+    skills = cleaner.get("skills", {})
+    clearance_level = cleaner.get("clearance_level", "standard")
+    department_expertise = cleaner.get("department_expertise", [])
+    average_room_time = cleaner.get("average_room_time", 45)
+    max_tasks_per_shift = cleaner.get("max_tasks_per_shift", 10)
 
-    # Urgency bonus for post_discharge
-    if context == "post_discharge" and current_tasks < 2:
-        score += 10
-
+    score = 0
     reasoning_parts = []
-    if current_tasks == 0:
-        reasoning_parts.append("No current tasks")
-    elif current_tasks == 1:
-        reasoning_parts.append("Manageable workload (1 task)")
-    elif current_tasks == 2:
-        reasoning_parts.append("Moderate workload (2 tasks)")
-    else:
-        reasoning_parts.append(f"Heavy workload ({current_tasks} tasks)")
 
-    if context == "post_discharge":
-        reasoning_parts.append("post-discharge cleaning")
+    # 1. Workload scoring (max 30 points)
+    workload_capacity = max_tasks_per_shift - current_tasks
+    if workload_capacity <= 0:
+        score += 0
+        reasoning_parts.append(
+            f"At capacity ({current_tasks}/{max_tasks_per_shift} tasks)"
+        )
+    elif current_tasks == 0:
+        score += 30
+        reasoning_parts.append("Available - no current tasks")
+    elif current_tasks <= max_tasks_per_shift * 0.3:
+        score += 25
+        reasoning_parts.append(f"Light load ({current_tasks}/{max_tasks_per_shift})")
+    elif current_tasks <= max_tasks_per_shift * 0.6:
+        score += 15
+        reasoning_parts.append(f"Moderate load ({current_tasks}/{max_tasks_per_shift})")
     else:
-        reasoning_parts.append("pre-admission preparation")
+        score += 5
+        reasoning_parts.append(f"Heavy load ({current_tasks}/{max_tasks_per_shift})")
+
+    # 2. Experience scoring (max 25 points)
+    if experience_years >= 20:
+        score += 25
+        reasoning_parts.append(f"Veteran ({experience_years}yr)")
+    elif experience_years >= 10:
+        score += 20
+        reasoning_parts.append(f"Experienced ({experience_years}yr)")
+    elif experience_years >= 5:
+        score += 15
+        reasoning_parts.append(f"Skilled ({experience_years}yr)")
+    else:
+        score += 10
+        reasoning_parts.append(f"Junior ({experience_years}yr)")
+
+    # 3. Specialty matching (max 30 points)
+    specialties_lower = [s.lower() for s in specialties]
+    department_expertise_lower = [d.lower() for d in department_expertise]
+
+    specialty_matched = False
+
+    if context == "pre_admission":
+        # For pre-admission, look for preparation and sterilization skills
+        if any("icu" in s for s in specialties_lower):
+            score += 30
+            reasoning_parts.append("ICU specialist")
+            specialty_matched = True
+        elif any(
+            "surgery" in s or "or" in s or "sterile" in s for s in specialties_lower
+        ):
+            score += 28
+            reasoning_parts.append("Surgery/OR specialist")
+            specialty_matched = True
+        elif any("er" in s or "emergency" in s for s in specialties_lower):
+            score += 25
+            reasoning_parts.append("ER specialist")
+            specialty_matched = True
+    else:  # post_discharge
+        # For post-discharge, prioritize thorough cleaning and infection control
+        if any("isolation" in s or "infectious" in s for s in specialties_lower):
+            score += 30
+            reasoning_parts.append("Isolation/Infection control expert")
+            specialty_matched = True
+        elif any("icu" in s for s in specialties_lower):
+            score += 28
+            reasoning_parts.append("ICU deep cleaning specialist")
+            specialty_matched = True
+        elif any("hazmat" in s or "biohazard" in s for s in specialties_lower):
+            score += 26
+            reasoning_parts.append("Hazmat/Biohazard certified")
+            specialty_matched = True
+
+    if not specialty_matched:
+        if any("general" in s for s in specialties_lower):
+            score += 18
+            reasoning_parts.append("General cleaning qualified")
+        else:
+            score += 10
+
+    # 4. Skill ratings (max 15 points) - check relevant skills
+    relevant_skill_score = 0
+    skills_mentioned = []
+
+    if context == "pre_admission":
+        if skills.get("sterile_technique", 0) >= 90:
+            relevant_skill_score += 5
+            skills_mentioned.append("sterile technique")
+        if skills.get("equipment_sterilization", 0) >= 85:
+            relevant_skill_score += 5
+            skills_mentioned.append("equipment sterilization")
+    else:  # post_discharge
+        if skills.get("infection_control", 0) >= 90:
+            relevant_skill_score += 5
+            skills_mentioned.append("infection control")
+        if skills.get("terminal_cleaning", 0) >= 85:
+            relevant_skill_score += 5
+            skills_mentioned.append("terminal cleaning")
+
+    # Check general high-level skills
+    if skills.get("icu_cleaning", 0) >= 90 or skills.get("or_cleaning", 0) >= 90:
+        relevant_skill_score += 5
+        skills_mentioned.append("expert-level cleaning")
+
+    score += relevant_skill_score
+    if skills_mentioned:
+        reasoning_parts.append(f"Skills: {', '.join(skills_mentioned[:2])}")
+
+    # 5. Clearance level bonus
+    if clearance_level == "high_risk":
+        score += 10
+        reasoning_parts.append("High-risk clearance")
+
+    # 6. Efficiency bonus based on room time
+    if average_room_time <= 30:
+        score += 5
+        reasoning_parts.append("Fast turnover")
+    elif average_room_time >= 55:
+        score -= 3
+        reasoning_parts.append("Thorough but slower")
+
+    # Context-specific adjustments
+    if context == "post_discharge" and current_tasks < 2:
+        score += 5  # Bonus for availability during discharge
 
     return {
         "cleaner_id": cleaner_id,
         "name": name,
         "current_tasks": current_tasks,
+        "experience_years": experience_years,
+        "specialties": specialties,
+        "clearance_level": clearance_level,
         "score": score,
-        "reasoning": " - ".join(reasoning_parts),
+        "reasoning": " | ".join(reasoning_parts),
     }
 
 
@@ -273,68 +390,197 @@ def score_nurse_assignment(
     nurse: Dict[str, Any], patient: Dict[str, Any], bed: Dict[str, Any]
 ) -> Dict[str, Any]:
     """
-    Score nurse based on skills, workload, and ward match
+    Score nurse based on experience, specialties, skills, certifications, and workload
+    Uses detailed profiles created in database initialization
     Pure function - deterministic scoring
     """
     nurse_id = nurse.get("nurse_id") or nurse.get("user_id")
     name = nurse.get("name", f"Nurse {nurse_id}")
-    skills = nurse.get("skills", [])
-    skills_lower = [s.lower() for s in skills]
+
+    # Get detailed profile data
+    experience_years = nurse.get("experience_years", 0)
+    specialties = nurse.get("specialties", [])
+    certifications = nurse.get("certifications", [])
+    skills = nurse.get("skills", {})
+    department = nurse.get("department", "")
+    languages = nurse.get("languages", [])
+    max_patients = nurse.get("max_patients", 5)
     current_patients = nurse.get("current_patients", 0)
+
+    # Patient and bed info
     ward = bed.get("ward", "").lower()
+    bed_type = bed.get("type", "").lower()
+    diagnosis = patient.get("admission", {}).get("diagnosis", "").lower()
+    special_needs = patient.get("special_needs", [])
+    patient_age = patient.get("age", 0)
 
     score = 0
     reasoning_parts = []
 
-    # Workload scoring (max 40 points)
-    if current_patients == 0:
-        score += 40
-        reasoning_parts.append("No current patients")
-    elif current_patients == 1:
-        score += 30
-        reasoning_parts.append("Light workload (1 patient)")
-    elif current_patients == 2:
+    # 1. Workload scoring (max 25 points)
+    workload_capacity = max_patients - current_patients
+    if workload_capacity <= 0:
+        score += 0
+        reasoning_parts.append(f"At capacity ({current_patients}/{max_patients})")
+    elif current_patients == 0:
+        score += 25
+        reasoning_parts.append("Available - no patients")
+    elif current_patients <= max_patients * 0.4:
         score += 20
-        reasoning_parts.append("Moderate workload (2 patients)")
-    elif current_patients == 3:
-        score += 10
-        reasoning_parts.append("Heavy workload (3 patients)")
+        reasoning_parts.append(f"Light load ({current_patients}/{max_patients})")
+    elif current_patients <= max_patients * 0.7:
+        score += 12
+        reasoning_parts.append(f"Moderate load ({current_patients}/{max_patients})")
     else:
-        reasoning_parts.append(f"Very heavy workload ({current_patients} patients)")
+        score += 5
+        reasoning_parts.append(f"Heavy load ({current_patients}/{max_patients})")
 
-    # Skills matching (max 40 points)
-    diagnosis = patient.get("diagnosis", "").lower()
-    special_needs = [s.lower() for s in patient.get("special_needs", [])]
-
-    if "isolation" in ward and "isolation" in skills_lower:
-        score += 30
-        reasoning_parts.append("Isolation trained")
-    elif "icu" in ward and "icu" in skills_lower:
-        score += 35
-        reasoning_parts.append("ICU trained")
-    elif "pediatric" in ward and "pediatric" in skills_lower:
-        score += 30
-        reasoning_parts.append("Pediatric specialist")
-    elif "general" in skills_lower:
-        score += 15
-        reasoning_parts.append("General care qualified")
-
-    # Ward familiarity (max 20 points)
-    assigned_ward = nurse.get("assigned_ward", "").lower()
-    if assigned_ward == ward:
+    # 2. Experience scoring (max 20 points)
+    if experience_years >= 20:
         score += 20
-        reasoning_parts.append("Familiar with ward")
-    elif assigned_ward:
-        score += 10
-        reasoning_parts.append("Can work in this ward")
-    else:
+        reasoning_parts.append(f"Veteran ({experience_years}yr)")
+    elif experience_years >= 15:
+        score += 18
+        reasoning_parts.append(f"Very experienced ({experience_years}yr)")
+    elif experience_years >= 10:
         score += 15
-        reasoning_parts.append("Flexible assignment")
+        reasoning_parts.append(f"Experienced ({experience_years}yr)")
+    elif experience_years >= 5:
+        score += 12
+        reasoning_parts.append(f"Skilled ({experience_years}yr)")
+    else:
+        score += 8
+        reasoning_parts.append(f"Junior ({experience_years}yr)")
+
+    # 3. Specialty and Department matching (max 35 points)
+    specialties_lower = [s.lower() for s in specialties]
+    department_lower = department.lower()
+
+    specialty_matched = False
+
+    # Check for critical care needs
+    if "cardiac" in diagnosis or "heart" in diagnosis or "myocardial" in diagnosis:
+        if "cardiology" in specialties_lower or "cardiac" in department_lower:
+            score += 35
+            reasoning_parts.append("Cardiac specialist")
+            specialty_matched = True
+        elif "critical care" in specialties_lower or "icu" in specialties_lower:
+            score += 28
+            reasoning_parts.append("Critical care trained")
+            specialty_matched = True
+
+    if "icu" in ward or "icu" in bed_type:
+        if "icu" in specialties_lower or "critical care" in specialties_lower:
+            score += 35
+            reasoning_parts.append("ICU specialist")
+            specialty_matched = True
+
+    if "emergency" in diagnosis or "er" in ward:
+        if "emergency" in specialties_lower or "trauma" in specialties_lower:
+            score += 33
+            reasoning_parts.append("Emergency/Trauma expert")
+            specialty_matched = True
+
+    if patient_age < 18:
+        if "pediatric" in specialties_lower or "pediatrics" in department_lower:
+            score += 35
+            reasoning_parts.append("Pediatric specialist")
+            specialty_matched = True
+
+    if "surgery" in diagnosis or "post-surgical" in diagnosis:
+        if "post-surgical" in specialties_lower or "surgery" in department_lower:
+            score += 32
+            reasoning_parts.append("Post-surgical care expert")
+            specialty_matched = True
+
+    if "oncology" in diagnosis or "cancer" in diagnosis or "chemotherapy" in diagnosis:
+        if "oncology" in specialties_lower:
+            score += 35
+            reasoning_parts.append("Oncology specialist")
+            specialty_matched = True
+
+    # General department match
+    if not specialty_matched:
+        if department_lower and (department_lower in ward or ward in department_lower):
+            score += 20
+            reasoning_parts.append(f"{department} trained")
+        elif "general" in specialties_lower:
+            score += 12
+            reasoning_parts.append("General care qualified")
+        else:
+            score += 8
+
+    # 4. Skill ratings (max 20 points) - check relevant skills
+    relevant_skill_score = 0
+    skills_mentioned = []
+
+    # Critical care skills
+    if "icu" in ward or "critical" in diagnosis:
+        if skills.get("critical_care", 0) >= 90:
+            relevant_skill_score += 7
+            skills_mentioned.append("expert critical care")
+        elif skills.get("critical_care", 0) >= 80:
+            relevant_skill_score += 5
+
+    # Emergency response
+    if "emergency" in diagnosis or "trauma" in diagnosis:
+        if skills.get("emergency_response", 0) >= 90:
+            relevant_skill_score += 7
+            skills_mentioned.append("expert emergency response")
+        elif skills.get("emergency_response", 0) >= 80:
+            relevant_skill_score += 5
+
+    # Patient monitoring
+    if skills.get("patient_monitoring", 0) >= 90:
+        relevant_skill_score += 4
+        skills_mentioned.append("expert monitoring")
+
+    # Medication administration (always important)
+    if skills.get("medication_administration", 0) >= 90:
+        relevant_skill_score += 4
+
+    # Specialty-specific skills
+    if "cardiac" in diagnosis and skills.get("cardiac_care", 0) >= 85:
+        relevant_skill_score += 6
+        skills_mentioned.append("cardiac care")
+
+    if patient_age < 18 and skills.get("pediatric_care", 0) >= 85:
+        relevant_skill_score += 6
+        skills_mentioned.append("pediatric care")
+
+    score += min(relevant_skill_score, 20)  # Cap at 20 points
+    if skills_mentioned:
+        reasoning_parts.append(f"Skills: {', '.join(skills_mentioned[:2])}")
+
+    # 5. Certifications bonus (max 10 points)
+    cert_score = 0
+    if "CCRN" in certifications or "Critical Care Certified" in certifications:
+        cert_score += 5
+    if "ACLS" in certifications:
+        cert_score += 3
+    if "PALS" in certifications and patient_age < 18:
+        cert_score += 4
+    if len(certifications) >= 4:
+        cert_score += 2
+
+    score += min(cert_score, 10)
+    if cert_score > 0:
+        reasoning_parts.append(f"{len(certifications)} certifications")
+
+    # 6. Language matching
+    if special_needs:
+        for need in special_needs:
+            if any(lang.lower() in need.lower() for lang in languages):
+                score += 5
+                reasoning_parts.append(f"Language match")
+                break
 
     return {
         "nurse_id": nurse_id,
         "name": name,
-        "skills": skills,
+        "experience_years": experience_years,
+        "specialties": specialties,
+        "department": department,
         "current_patients": current_patients,
         "score": score,
         "reasoning": " | ".join(reasoning_parts),

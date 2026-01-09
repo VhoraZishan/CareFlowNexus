@@ -1120,6 +1120,41 @@ def init_doctors():
     print(f"Added {len(doctors)} doctors.")
 
 
+def init_admins():
+    """Initialize admin users"""
+    admins = [
+        {
+            "user_id": "admin_001",
+            "username": "admin",
+            "password": "admin123",
+            "role": "admin",
+            "name": "System Administrator",
+            "email": "admin@careflow.com",
+            "phone": "+1-555-0001",
+            "active": True,
+            "department": "Administration",
+            "access_level": "full",
+        },
+        {
+            "user_id": "admin_002",
+            "username": "supervisor",
+            "password": "admin123",
+            "role": "admin",
+            "name": "Operations Supervisor",
+            "email": "supervisor@careflow.com",
+            "phone": "+1-555-0002",
+            "active": True,
+            "department": "Operations",
+            "access_level": "full",
+        },
+    ]
+
+    print("Initializing admins...")
+    for admin in admins:
+        db.collection("users").document(admin["user_id"]).set(admin)
+    print(f"Added {len(admins)} admins.")
+
+
 def init_receptionists():
     """Initialize receptionists"""
     receptionists = [
@@ -1350,6 +1385,9 @@ def main():
     init_doctors()
     print()
 
+    init_admins()
+    print()
+
     init_nurses()
     print()
 
@@ -1372,6 +1410,7 @@ def main():
     print("Summary:")
     print("- 8 Departments")
     print("- 5 Doctors")
+    print("- 2 Admins")
     print("- 10 Nurses (with detailed skills and specialties)")
     print("- 10 Cleaners (with detailed skills and specialties)")
     print("- 3 Receptionists")
@@ -1384,6 +1423,10 @@ def main():
     print("  - dr.smith / doc123 (Cardiology)")
     print("  - dr.jones / doc123 (Emergency)")
     print("  - dr.patel / doc123 (Pediatrics)")
+    print()
+    print("Admins:")
+    print("  - admin / admin123 (System Administrator)")
+    print("  - supervisor / admin123 (Operations Supervisor)")
     print()
     print("Nurses:")
     print("  - sarah.johnson / nurse123 (ICU - 22 years exp)")
