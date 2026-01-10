@@ -45,7 +45,8 @@ def admit_patient(patient_id: str, data: AdmissionRequest):
         print("BED AGENT RESULT =", agent_result)
     except Exception as e:
         print(f"Bed Agent failed: {e}")
-        agent_result = {"reason": "AI Agent Offline - Request forwarded to Admin", "recommended_bed_id": None}
+        # Use the actual error message which now contains details
+        agent_result = {"reason": str(e), "recommended_bed_id": None}
 
     bed_id = agent_result.get("recommended_bed_id")
     reason = agent_result.get("reason", "No reason provided")

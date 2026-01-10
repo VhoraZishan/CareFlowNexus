@@ -36,6 +36,10 @@ def call_bed_agent(patient, doctor_input, available_beds):
         result = response.json()
         logger.info(f"Bed agent response: {result}")
         return result
+    except httpx.HTTPStatusError as e:
+        error_detail = e.response.text
+        logger.error(f"Bed agent API error {e.response.status_code}: {error_detail}")
+        raise Exception(f"Bed agent failed ({e.response.status_code}): {error_detail}")
     except httpx.TimeoutException:
         logger.error(f"Timeout calling bed agent at {BED_AGENT_URL}")
         raise Exception(
@@ -66,6 +70,10 @@ def call_nurse_agent(patient, bed, available_nurses):
         result = response.json()
         logger.info(f"Nurse agent response: {result}")
         return result
+    except httpx.HTTPStatusError as e:
+        error_detail = e.response.text
+        logger.error(f"Nurse agent API error {e.response.status_code}: {error_detail}")
+        raise Exception(f"Nurse agent failed ({e.response.status_code}): {error_detail}")
     except httpx.TimeoutException:
         logger.error(f"Timeout calling nurse agent at {NURSE_AGENT_URL}")
         raise Exception(
@@ -98,6 +106,10 @@ def call_cleaner_agent(bed, available_cleaners, context="post_discharge"):
         result = response.json()
         logger.info(f"Cleaner agent response: {result}")
         return result
+    except httpx.HTTPStatusError as e:
+        error_detail = e.response.text
+        logger.error(f"Cleaner agent API error {e.response.status_code}: {error_detail}")
+        raise Exception(f"Cleaner agent failed ({e.response.status_code}): {error_detail}")
     except httpx.TimeoutException:
         logger.error(f"Timeout calling cleaner agent at {CLEANER_AGENT_URL}")
         raise Exception(
