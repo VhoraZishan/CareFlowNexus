@@ -1,14 +1,20 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Login from './components/Login';
-import Dashboard from './components/Dashboard';
-import NewPatient from './components/NewPatient';
-import PatientList from './components/PatientList';
-import DoctorDashboard from './components/DoctorDashboard';
-import DoctorAdmitPatient from './components/DoctorAdmitPatient';
-import PatientDetails from './components/PatientDetails';
-import NurseDashboard from './components/NurseDashboard';
-import CleanerDashboard from './components/CleanerDashboard';
+import React from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import Login from "./components/Login";
+import Dashboard from "./components/Dashboard";
+import NewPatient from "./components/NewPatient";
+import PatientList from "./components/PatientList";
+import DoctorDashboard from "./components/DoctorDashboard";
+import DoctorAdmitPatient from "./components/DoctorAdmitPatient";
+import PatientDetails from "./components/PatientDetails";
+import NurseDashboard from "./components/NurseDashboard";
+import CleanerDashboard from "./components/CleanerDashboard";
+import ReceptionistDashboard from "./components/ReceptionistDashboard";
 
 function App() {
   return (
@@ -21,6 +27,10 @@ function App() {
         <Route path="/doctor-dashboard" element={<DoctorDashboard />} />
         <Route path="/nurse-dashboard" element={<NurseDashboard />} />
         <Route path="/cleaner-dashboard" element={<CleanerDashboard />} />
+        <Route
+          path="/receptionist-dashboard"
+          element={<ReceptionistDashboard />}
+        />
         <Route path="/patients/doctor-admit" element={<DoctorAdmitPatient />} />
         <Route path="/patients/details" element={<PatientDetails />} />
         {/* Redirect unknown routes to login for now */}
