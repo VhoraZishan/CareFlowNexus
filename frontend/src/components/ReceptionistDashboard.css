@@ -173,9 +173,9 @@
 /* Main Content */
 .receptionist-content {
     flex: 1;
-    margin-left: 280px;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
 }
 
 /* Header */
