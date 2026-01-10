@@ -116,11 +116,12 @@ const DoctorDashboard = () => {
       <aside className="sidebar">
         <div className="sidebar-brand-top">
           <h1>CareFlow Nexus</h1>
+          <p>MEDICAL STAFF</p>
         </div>
 
         <nav className="sidebar-nav">
           <button
-            className={`nav-btn ${activeTab === "my-patients" ? "active" : ""}`}
+            className={`doctor-nav-btn ${activeTab === "my-patients" ? "active" : ""}`}
             onClick={() => setActiveTab("my-patients")}
           >
             <span className="nav-icon">🏥</span> My Admitted Patients
@@ -129,18 +130,18 @@ const DoctorDashboard = () => {
             )}
           </button>
           <button
-            className={`nav-btn ${activeTab === "all-patients" ? "active" : ""}`}
+            className={`doctor-nav-btn ${activeTab === "all-patients" ? "active" : ""}`}
             onClick={() => setActiveTab("all-patients")}
           >
             <span className="nav-icon">📊</span> All Patients
           </button>
           <button
-            className="nav-btn"
+            className="doctor-nav-btn"
             onClick={() => navigate("/patients/doctor-admit")}
           >
             <span className="nav-icon">✨</span> Admit Patient
           </button>
-          <button className="nav-btn logout-nav-btn" onClick={handleLogout}>
+          <button className="doctor-nav-btn logout-nav-btn" onClick={handleLogout}>
             <span className="nav-icon">🚪</span> Logout
           </button>
         </nav>
