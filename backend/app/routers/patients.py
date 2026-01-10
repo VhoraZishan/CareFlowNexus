@@ -135,17 +135,23 @@ def list_patients_pending_confirmation(user_id: str):
 
     for doc in patients_ref:
         patient = doc.to_dict()
+        admission = patient.get("admission", {})
 
+        # Return data in the format the frontend expects
         response.append({
-            "patient_id": doc.id,
+            "patient_id": patient.get("patient_id") or doc.id,
             "name": patient.get("name"),
             "age": patient.get("age"),
             "gender": patient.get("gender"),
+            "status": patient.get("status", "pending_confirmation"),
             "special_needs": patient.get("special_needs", []),
-            "diagnosis": patient.get("admission", {}).get("diagnosis"),
-            "recommended_bed": {
-                "bed_id": patient.get("admission", {}).get("recommended_bed_id"),
-                "reason": patient.get("admission", {}).get("bed_reason")
+            "medical_history": patient.get("medical_history", []),
+            "admission": {
+                "diagnosis": admission.get("diagnosis"),
+                "special_instructions": admission.get("special_instructions"),
+                "recommended_bed_id": admission.get("recommended_bed_id"),
+                "agent_message": admission.get("agent_message") or admission.get("reason"),
+                "doctor_id": admission.get("doctor_id")
             }
         })
 

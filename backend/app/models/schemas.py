@@ -21,7 +21,7 @@ class AdmissionRequest(BaseModel):
 class ConfirmBedRequest(BaseModel):
     user_id: str
     bed_id: str
-    confirm: bool
+    confirm: Optional[bool] = True
 
 class TaskActionRequest(BaseModel):
     user_id: str
