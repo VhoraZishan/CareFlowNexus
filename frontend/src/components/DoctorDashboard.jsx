@@ -141,9 +141,7 @@ const DoctorDashboard = () => {
           >
             <span className="nav-icon">✨</span> Admit Patient
           </button>
-          <button className="doctor-nav-btn logout-nav-btn" onClick={handleLogout}>
-            <span className="nav-icon">🚪</span> Logout
-          </button>
+
         </nav>
 
         <div className="sidebar-footer">
@@ -158,6 +156,9 @@ const DoctorDashboard = () => {
               <h4>{user?.user_id || "Doctor"}</h4>
               <p>Medical Staff</p>
             </div>
+            <button className="logout-btn" onClick={handleLogout} title="Logout">
+              ⏻
+            </button>
           </div>
         </div>
       </aside>
