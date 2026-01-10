@@ -594,6 +594,15 @@
     color: #1e293b;
 }
 
+.action-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1.5rem;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid #f1f5f9;
+}
+
 .loader-small {
     width: 24px;
     height: 24px;
