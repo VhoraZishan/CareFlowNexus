@@ -15,10 +15,6 @@
 }
 
 /* ============================================================================
-   SIDEBAR - Modern Gradient Design
-   ============================================================================ */
-
-/* ============================================================================
    SIDEBAR - Standard Unified Design
    ============================================================================ */
 
@@ -60,7 +56,7 @@
     flex: 1;
 }
 
-.nav-btn {
+.doctor-nav-btn {
     display: flex;
     align-items: center;
     gap: 0.875rem;
@@ -70,25 +66,21 @@
     border-radius: 12px;
     font-weight: 700;
     font-size: 0.95rem;
-    color: #64748b;
+    color: #64748b !important;
     cursor: pointer;
     text-align: left;
     transition: all 0.2s;
 }
 
-.nav-btn:hover {
+.doctor-nav-btn:hover {
     background: #f1f5f9;
-    color: #1e293b;
-    transform: none;
-    /* Removed the shift */
+    color: #1e293b !important;
 }
 
-/* ACTIVE STATE - Fixed readability */
-.nav-btn.active {
+/* ACTIVE STATE */
+.doctor-nav-btn.active {
     background-color: #eff6ff;
-    /* Light blue bg */
-    color: #2563eb;
-    /* Blue text */
+    color: #2563eb !important;
     box-shadow: none;
     border: none;
 }

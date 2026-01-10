@@ -100,7 +100,7 @@ const CleanerDashboard = () => {
 
     return (
         <div className="cleaner-dashboard-premium">
-            <aside className="sidebar-premium">
+            <aside className="sidebar">
                 <div className="sidebar-brand-top">
                     <h1>CareFlow Nexus</h1>
                     <p>CLEANING SERVICES</p>
