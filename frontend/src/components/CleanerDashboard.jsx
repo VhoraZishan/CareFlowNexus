@@ -20,6 +20,7 @@ const CleanerDashboard = () => {
                 }
                 const parsedUser = JSON.parse(userStr);
                 setUser(parsedUser);
+                console.log(`[CleanerDashboard] Active User: ${parsedUser.user_id} (${parsedUser.name})`);
 
                 // Fetch real tasks
                 const data = await api.getTasks(parsedUser.user_id);

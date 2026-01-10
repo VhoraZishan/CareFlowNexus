@@ -23,6 +23,7 @@ const DoctorDashboard = () => {
       }
       const parsedUser = JSON.parse(userStr);
       setUser(parsedUser);
+      console.log(`[DoctorDashboard] Active User: ${parsedUser.user_id}`);
       const data = await api.getPatients(parsedUser.user_id);
       setPatients(data || []);
     } catch (err) {

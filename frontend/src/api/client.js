@@ -94,10 +94,12 @@ class ApiClient {
 
   // ==================== TASKS ====================
   async getTasks(userId) {
+    console.log(`[ApiClient] Fetching tasks for User: ${userId}`);
     return this.request(`/tasks?user_id=${userId}`);
   }
 
   async acceptTask(taskId, userId) {
+    console.log(`[ApiClient] Accepting Task ${taskId} for User: ${userId}`);
     return this.request(`/tasks/${taskId}/accept`, {
       method: "POST",
       body: JSON.stringify({ user_id: userId }),
@@ -105,6 +107,7 @@ class ApiClient {
   }
 
   async completeTask(taskId, userId, notes = "") {
+    console.log(`[ApiClient] Completing Task ${taskId} for User: ${userId}`);
     return this.request(`/tasks/${taskId}/complete`, {
       method: "POST",
       body: JSON.stringify({ user_id: userId, notes }),
