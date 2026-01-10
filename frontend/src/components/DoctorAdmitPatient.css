@@ -199,6 +199,51 @@
     padding: 2.5rem;
     border-radius: 24px;
     border: 1px solid #e2e8f0;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.disease-selection-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.disease-selection-container::-webkit-scrollbar-track {
+    background: #e2e8f0;
+    border-radius: 3px;
+}
+
+.disease-selection-container::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+.disease-selection-container::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+.filtered-tags-area {
+    max-height: 300px;
+    overflow-y: auto;
+    padding-right: 8px; /* Space for scrollbar */
+    margin-top: 1rem;
+}
+
+.filtered-tags-area::-webkit-scrollbar {
+    width: 6px;
+}
+
+.filtered-tags-area::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 3px;
+}
+
+.filtered-tags-area::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+.filtered-tags-area::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
 }
 
 .selection-navbar {
