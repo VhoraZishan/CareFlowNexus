@@ -20,11 +20,17 @@ const NurseDashboard = () => {
                 const parsedUser = JSON.parse(userStr);
                 setUser(parsedUser);
 
+                // DEBUG LOGGING
+                console.log(`[NurseDashboard] Fetching tasks for user ID: ${parsedUser.user_id}`);
+                console.log(`[NurseDashboard] User Role: ${parsedUser.role}`);
+
                 // Fetch real tasks
                 const data = await api.getTasks(parsedUser.user_id);
+                console.log('[NurseDashboard] Tasks response:', data);
                 setTasks(data || []);
             } catch (err) {
                 console.error("Failed to load tasks", err);
+                alert(`Error loading tasks: ${err.message}\nCheck console for details.`);
             } finally {
                 setLoading(false);
             }
