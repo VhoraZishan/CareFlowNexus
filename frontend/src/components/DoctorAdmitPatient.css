@@ -66,6 +66,70 @@
     outline: none;
 }
 
+/* Search Wrapper and Recommendations */
+.search-wrapper-premium {
+    position: relative;
+    margin-bottom: 2rem;
+}
+
+.recommendations-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    max-height: 400px;
+    overflow-y: auto;
+    z-index: 1000;
+    margin-top: 0.5rem;
+}
+
+.recommendation-item {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #f1f5f9;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.recommendation-item:last-child {
+    border-bottom: none;
+}
+
+.recommendation-item:hover {
+    background: #f8fafc;
+}
+
+.recommendation-item h4 {
+    margin: 0 0 0.25rem 0;
+    color: #1e293b;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.recommendation-item p {
+    margin: 0;
+    color: #64748b;
+    font-size: 0.85rem;
+}
+
+.animate-slide-down {
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 /* Specific Disease Selection Premium Styles */
 .disease-selection-container {
     margin-bottom: 3rem;
@@ -187,7 +251,7 @@
 }
 
 .patient-info-display::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: 0;
