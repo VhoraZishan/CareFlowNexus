@@ -179,14 +179,17 @@
 }
 
 /* Header */
+/* Header */
 .receptionist-header {
     background: white;
-    padding: 1.5rem 2rem;
+    padding: 0 2rem;
+    height: 80px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid #e5e7eb;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid #e2e8f0;
+    box-shadow: none;
+    flex-shrink: 0;
 }
 
 .header-left {
@@ -197,8 +200,9 @@
 
 .header-left h2 {
     margin: 0;
-    font-size: 1.75rem;
+    font-size: 1.5rem;
     color: #1f2937;
+    font-weight: 800;
 }
 
 .shift-badge {
@@ -451,23 +455,30 @@
 /* Empty State */
 .empty-state {
     text-align: center;
-    padding: 4rem 2rem;
+    padding: 3rem 1.5rem;
+    background: white;
+    border-radius: 12px;
+    border: 1px dashed #cbd5e1;
+    margin-top: 1rem;
 }
 
 .empty-icon {
-    font-size: 4rem;
+    font-size: 3rem;
     margin-bottom: 1rem;
+    opacity: 0.5;
 }
 
 .empty-state h3 {
     margin: 0 0 0.5rem 0;
-    font-size: 1.5rem;
+    font-size: 1.25rem;
+    font-weight: 700;
     color: #1f2937;
 }
 
 .empty-state p {
     margin: 0 0 1.5rem 0;
     color: #6b7280;
+    font-size: 0.95rem;
 }
 
 /* Loading State */
@@ -475,7 +486,10 @@
     text-align: center;
     padding: 3rem;
     color: #6b7280;
-    font-size: 1.1rem;
+    font-size: 1rem;
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
 }
 
 /* Patients Table */
