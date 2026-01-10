@@ -109,6 +109,19 @@
     text-transform: uppercase;
 }
 
+.premium-input {
+    width: 100%;
+    padding: 1.25rem 1.5rem;
+    font-size: 1.1rem;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    color: #1e293b;
+    transition: all 0.2s;
+    font-family: var(--font-family);
+    outline: none;
+}
+
 .search-bar-enhanced {
     width: 100%;
     padding: 1.25rem 1.5rem;
@@ -147,6 +160,7 @@
     overflow-y: auto;
     z-index: 1000;
     margin-top: 0.5rem;
+    pointer-events: auto;
 }
 
 .recommendation-item {
@@ -401,6 +415,26 @@
     font-weight: 600;
     color: #1e293b;
     margin: 0;
+}
+
+.premium-input {
+    width: 100%;
+    padding: 1.25rem 1.5rem;
+    font-size: 1.1rem;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    color: #1e293b;
+    transition: all 0.2s;
+    font-family: var(--font-family);
+    outline: none;
+}
+
+.premium-input:focus {
+    border-color: #2563eb;
+    background: #fff;
+    box-shadow: 0 10px 40px rgba(37, 99, 235, 0.1);
+    outline: none;
 }
 
 .premium-textarea {
