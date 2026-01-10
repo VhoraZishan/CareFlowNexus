@@ -18,7 +18,7 @@
    SIDEBAR - Standard Unified Design
    ============================================================================ */
 
-.sidebar {
+.doctor-sidebar {
     width: 280px;
     background: #ffffff;
     border-right: 1px solid #e2e8f0;
@@ -48,7 +48,7 @@
 }
 
 /* Navigation */
-.sidebar-nav {
+.doctor-sidebar-nav {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
@@ -106,13 +106,13 @@
 }
 
 /* Sidebar Footer */
-.sidebar-footer {
+.doctor-sidebar-footer {
     margin-top: auto;
     padding-top: 1.5rem;
     border-top: 1px solid #f1f5f9;
 }
 
-.sidebar-user-profile {
+.doctor-sidebar-profile {
     display: flex;
     align-items: center;
     gap: 1rem;
