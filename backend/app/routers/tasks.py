@@ -20,7 +20,22 @@ def get_tasks(user_id: str):
         # Ensure task_id is included (Firestore doc.id might differ from task_id field)
         if task:
             task["task_id"] = task.get("task_id") or doc.id
-        tasks.append(task)
+
+            # Hydrate Patient details
+            if task.get("patient_id"):
+                p_doc = db.collection("patients").document(task["patient_id"]).get()
+                if p_doc.exists:
+                    task["patient_name"] = p_doc.to_dict().get("name", "Unknown")
+
+            # Hydrate Bed details
+            if task.get("bed_id"):
+                b_doc = db.collection("beds").document(task["bed_id"]).get()
+                if b_doc.exists:
+                    b_data = b_doc.to_dict()
+                    # Try to get room number, fallback to bed_id
+                    task["room"] = b_data.get("room_number") or b_data.get("bed_id") or task["bed_id"]
+            
+            tasks.append(task)
 
     return tasks
 
