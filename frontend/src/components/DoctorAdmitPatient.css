@@ -1,3 +1,65 @@
+.doctor-layout {
+    display: flex;
+    height: 100vh;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+    font-family: var(--font-family);
+    overflow: hidden;
+}
+
+.doc-sidebar-premium {
+    width: 280px;
+    background: linear-gradient(180deg, #2563eb 0%, #1e40af 50%, #1e3a8a 100%);
+    display: flex;
+    flex-direction: column;
+    box-shadow: 8px 0 40px rgba(37, 99, 235, 0.15);
+    position: relative;
+    z-index: 100;
+    flex-shrink: 0;
+    overflow-y: auto;
+}
+
+.doc-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-width: 0;
+}
+
+.doc-header {
+    height: 90px;
+    background: white;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2.5rem;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    position: relative;
+    z-index: 10;
+}
+
+.doc-content-scrollable {
+    flex: 1;
+    overflow-y: auto;
+    padding: 2.5rem;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+}
+
+.doc-content-scrollable::-webkit-scrollbar {
+    width: 8px;
+}
+
+.doc-content-scrollable::-webkit-scrollbar-track {
+    background: #e2e8f0;
+}
+
+.doc-content-scrollable::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #2563eb, #1e40af);
+    border-radius: 4px;
+}
+
 .admit-patient-container {
     max-width: 1200px;
     margin: 0 auto;
