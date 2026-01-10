@@ -121,9 +121,7 @@ const ReceptionistDashboard = () => {
                     <button className="nav-btn" onClick={() => navigate('/patients/new')}>
                         <span className="icon">➕</span> New Patient
                     </button>
-                    <button className="nav-btn" onClick={handleLogout}>
-                        <span className="icon">⏻</span> Logout
-                    </button>
+
                 </nav>
 
                 <div className="sidebar-bottom-profile">
@@ -138,6 +136,9 @@ const ReceptionistDashboard = () => {
                             <h4>{user?.user_id || 'Receptionist'}</h4>
                             <p>Reception Desk</p>
                         </div>
+                        <button className="logout-btn-icon" onClick={handleLogout} title="Logout">
+                            ⏻
+                        </button>
                     </div>
                 </div>
             </aside>
@@ -291,8 +292,8 @@ const ReceptionistDashboard = () => {
                                                 <td>{getStatusBadge(patient.status)}</td>
                                                 <td>
                                                     {patient.admission?.confirmed_bed_id ||
-                                                     patient.admission?.recommended_bed_id ||
-                                                     '-'}
+                                                        patient.admission?.recommended_bed_id ||
+                                                        '-'}
                                                 </td>
                                                 <td>
                                                     {patient.created_at

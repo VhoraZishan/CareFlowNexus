@@ -109,7 +109,7 @@ const CleanerDashboard = () => {
                 <nav className="sidebar-nav">
                     <button className="nav-btn active">Cleaning Dashboard</button>
                     <button className="nav-btn">My History</button>
-                    <button className="nav-btn" onClick={handleLogout}>Logout</button>
+
                 </nav>
 
                 <div className="sidebar-footer">

@@ -113,13 +113,13 @@ const DoctorDashboard = () => {
 
   return (
     <div className="doctor-layout">
-      <aside className="sidebar">
+      <aside className="doctor-sidebar">
         <div className="sidebar-brand-top">
           <h1>CareFlow Nexus</h1>
           <p>MEDICAL STAFF</p>
         </div>
 
-        <nav className="sidebar-nav">
+        <nav className="doctor-sidebar-nav">
           <button
             className={`doctor-nav-btn ${activeTab === "my-patients" ? "active" : ""}`}
             onClick={() => setActiveTab("my-patients")}
@@ -141,13 +141,10 @@ const DoctorDashboard = () => {
           >
             <span className="nav-icon">✨</span> Admit Patient
           </button>
-          <button className="doctor-nav-btn logout-nav-btn" onClick={handleLogout}>
-            <span className="nav-icon">🚪</span> Logout
-          </button>
         </nav>
 
-        <div className="sidebar-footer">
-          <div className="sidebar-user-profile">
+        <div className="doctor-sidebar-footer">
+          <div className="doctor-sidebar-profile">
             <div className="user-avatar-premium">
               <img
                 src={`https://ui-avatars.com/api/?name=${user?.user_id || "Doctor"}&background=3b82f6&color=fff&bold=true`}
@@ -158,6 +155,9 @@ const DoctorDashboard = () => {
               <h4>{user?.user_id || "Doctor"}</h4>
               <p>Medical Staff</p>
             </div>
+            <button className="logout-btn" onClick={handleLogout} title="Logout">
+              ⏻
+            </button>
           </div>
         </div>
       </aside>
