@@ -113,13 +113,12 @@ const DoctorDashboard = () => {
 
   return (
     <div className="doctor-layout">
-      <aside className="doc-sidebar-premium">
-        <div className="sidebar-logo">
+      <aside className="sidebar">
+        <div className="sidebar-brand-top">
           <h1>CareFlow Nexus</h1>
-          <p className="sidebar-subtitle">MEDICAL STAFF</p>
         </div>
 
-        <nav className="sidebar-nav-premium">
+        <nav className="sidebar-nav">
           <button
             className={`nav-btn ${activeTab === "my-patients" ? "active" : ""}`}
             onClick={() => setActiveTab("my-patients")}
@@ -141,22 +140,22 @@ const DoctorDashboard = () => {
           >
             <span className="nav-icon">✨</span> Admit Patient
           </button>
-          <button className="nav-btn" onClick={handleLogout}>
+          <button className="nav-btn logout-nav-btn" onClick={handleLogout}>
             <span className="nav-icon">🚪</span> Logout
           </button>
         </nav>
 
-        <div className="sidebar-bottom">
-          <div className="user-profile-widget">
-            <div className="user-avatar-small">
+        <div className="sidebar-footer">
+          <div className="sidebar-user-profile">
+            <div className="user-avatar-premium">
               <img
                 src={`https://ui-avatars.com/api/?name=${user?.user_id || "Doctor"}&background=3b82f6&color=fff&bold=true`}
                 alt="Avatar"
               />
             </div>
-            <div className="user-meta-small">
+            <div className="user-info-text">
               <h4>{user?.user_id || "Doctor"}</h4>
-              <p className="user-role">Medical Staff</p>
+              <p>Medical Staff</p>
             </div>
           </div>
         </div>
@@ -269,17 +268,17 @@ const DoctorDashboard = () => {
 
                       {(patient.admission?.confirmed_bed_id ||
                         patient.admission?.recommended_bed_id) && (
-                        <div className="detail-item">
-                          <span className="detail-icon">🛏️</span>
-                          <div className="detail-text">
-                            <label>BED ASSIGNMENT</label>
-                            <p>
-                              {patient.admission?.confirmed_bed_id ||
-                                patient.admission?.recommended_bed_id}
-                            </p>
+                          <div className="detail-item">
+                            <span className="detail-icon">🛏️</span>
+                            <div className="detail-text">
+                              <label>BED ASSIGNMENT</label>
+                              <p>
+                                {patient.admission?.confirmed_bed_id ||
+                                  patient.admission?.recommended_bed_id}
+                              </p>
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        )}
 
                       {patient.medical_history &&
                         patient.medical_history.length > 0 && (
