@@ -19,14 +19,14 @@
     z-index: 100;
 }
 
-.sidebar-logo h1 {
+.sidebar-brand-top h1 {
     font-size: 1.5rem;
     font-weight: 800;
     color: #1e3a8a;
     margin: 0;
 }
 
-.sidebar-logo p {
+.sidebar-brand-top p {
     font-size: 0.75rem;
     font-weight: 700;
     color: #94a3b8;

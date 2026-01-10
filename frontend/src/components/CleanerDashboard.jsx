@@ -72,15 +72,15 @@ const CleanerDashboard = () => {
             alert('User not loaded. Please refresh the page.');
             return;
         }
-        
+
         // Confirm before completing
         const confirmed = window.confirm(
             'Are you sure you want to mark this task as completed?\n\n' +
             'This will trigger the next step in the workflow.'
         );
-        
+
         if (!confirmed) return;
-        
+
         setProcessingTask(taskId);
         try {
             const result = await api.completeTask(taskId, user.user_id, 'Task completed');
@@ -101,7 +101,7 @@ const CleanerDashboard = () => {
     return (
         <div className="cleaner-dashboard-premium">
             <aside className="sidebar-premium">
-                <div className="sidebar-logo">
+                <div className="sidebar-brand-top">
                     <h1>CareFlow Nexus</h1>
                     <p>CLEANING SERVICES</p>
                 </div>
@@ -135,8 +135,8 @@ const CleanerDashboard = () => {
                     </div>
 
                     <div className="header-right">
-                        <button 
-                            className="icon-btn" 
+                        <button
+                            className="icon-btn"
                             onClick={refreshTasks}
                             title="Refresh tasks"
                         >
@@ -173,14 +173,14 @@ const CleanerDashboard = () => {
                                             </div>
                                             <div className="time-info">
                                                 <span className="assigned">
-                                                    {task.created_at 
+                                                    {task.created_at
                                                         ? (() => {
                                                             // Handle Firestore timestamp format
-                                                            const date = task.created_at.seconds 
+                                                            const date = task.created_at.seconds
                                                                 ? new Date(task.created_at.seconds * 1000)
                                                                 : task.created_at._seconds
-                                                                ? new Date(task.created_at._seconds * 1000)
-                                                                : new Date(task.created_at);
+                                                                    ? new Date(task.created_at._seconds * 1000)
+                                                                    : new Date(task.created_at);
                                                             return date.toLocaleDateString();
                                                         })()
                                                         : 'Today'}
@@ -198,7 +198,7 @@ const CleanerDashboard = () => {
 
                                         <div className="card-actions">
                                             {task.status === 'assigned' ? (
-                                                <button 
+                                                <button
                                                     className="btn-accept"
                                                     onClick={() => handleAcceptTask(task.task_id)}
                                                     disabled={processingTask === task.task_id}
@@ -206,7 +206,7 @@ const CleanerDashboard = () => {
                                                     {processingTask === task.task_id ? 'Processing...' : 'Accept Task'}
                                                 </button>
                                             ) : task.status === 'accepted' ? (
-                                                <button 
+                                                <button
                                                     className="btn-done-green"
                                                     onClick={() => handleCompleteTask(task.task_id)}
                                                     disabled={processingTask === task.task_id}
@@ -242,14 +242,14 @@ const CleanerDashboard = () => {
                                         <div className="p-top">
                                             <span className="p-prio-pill completed">COMPLETED</span>
                                             <span className="p-time">
-                                                {task.completed_at 
+                                                {task.completed_at
                                                     ? (() => {
                                                         // Handle Firestore timestamp format
-                                                        const date = task.completed_at.seconds 
+                                                        const date = task.completed_at.seconds
                                                             ? new Date(task.completed_at.seconds * 1000)
                                                             : task.completed_at._seconds
-                                                            ? new Date(task.completed_at._seconds * 1000)
-                                                            : new Date(task.completed_at);
+                                                                ? new Date(task.completed_at._seconds * 1000)
+                                                                : new Date(task.completed_at);
                                                         return date.toLocaleDateString();
                                                     })()
                                                     : 'Recently'}
