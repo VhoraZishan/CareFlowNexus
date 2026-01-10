@@ -22,6 +22,24 @@ const NewPatient = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleCancel = () => {
+    const userStr = localStorage.getItem("user");
+    if (!userStr) {
+      navigate("/");
+      return;
+    }
+    const user = JSON.parse(userStr);
+
+    // Redirect based on user role
+    if (user.role === "receptionist") {
+      navigate("/receptionist-dashboard");
+    } else if (user.role === "doctor") {
+      navigate("/doctor-dashboard");
+    } else {
+      navigate("/patients");
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -43,8 +61,26 @@ const NewPatient = () => {
           .map((s) => s.trim()),
         special_needs: formData.special_needs.split(",").map((s) => s.trim()),
       };
-      await api.createPatient(payload);
-      navigate("/patients");
+      const response = await api.createPatient(payload);
+
+      // Show success message
+      alert(
+        `✅ Patient Created Successfully!\n\n` +
+          `Patient: ${formData.name}\n` +
+          `Age: ${formData.age}\n` +
+          `Gender: ${formData.gender}\n\n` +
+          `Patient ID: ${response.patient_id || "Generated"}\n\n` +
+          `The patient is now registered and ready for admission.`,
+      );
+
+      // Redirect based on user role
+      if (user.role === "receptionist") {
+        navigate("/receptionist-dashboard");
+      } else if (user.role === "doctor") {
+        navigate("/doctor-dashboard");
+      } else {
+        navigate("/patients");
+      }
     } catch (error) {
       alert("Error: " + error.message);
     } finally {
@@ -162,7 +198,7 @@ const NewPatient = () => {
                 <button
                   type="button"
                   className="btn-cancel"
-                  onClick={() => navigate("/patients")}
+                  onClick={handleCancel}
                 >
                   Cancel
                 </button>
