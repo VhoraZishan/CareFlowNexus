@@ -6,16 +6,117 @@
     overflow: hidden;
 }
 
+/* ============================================================================
+   SIDEBAR - Standard Unified Design from DoctorDashboard.css
+   ============================================================================ */
+
 .doc-sidebar-premium {
     width: 280px;
-    background: linear-gradient(180deg, #2563eb 0%, #1e40af 50%, #1e3a8a 100%);
+    background: #ffffff;
+    border-right: 1px solid #e2e8f0;
     display: flex;
     flex-direction: column;
-    box-shadow: 8px 0 40px rgba(37, 99, 235, 0.15);
-    position: relative;
+    padding: 2.5rem 1.5rem;
+    overflow-y: auto;
+    height: 100vh;
     z-index: 100;
     flex-shrink: 0;
-    overflow-y: auto;
+    box-shadow: none;
+}
+
+.sidebar-logo h1 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #1e3a8a;
+    margin: 0;
+}
+
+.sidebar-logo p {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    margin-top: 0.25rem;
+    letter-spacing: 0.05em;
+}
+
+.sidebar-nav-premium {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 2rem 0;
+    flex: 1;
+}
+
+.nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    padding: 0.85rem 1.25rem;
+    border: none;
+    background: transparent;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #64748b;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s;
+}
+
+.nav-btn:hover {
+    background: #f1f5f9;
+    color: #1e293b;
+}
+
+.nav-btn.active {
+    background-color: #eff6ff;
+    color: #2563eb;
+    box-shadow: none;
+    border: none;
+}
+
+/* Sidebar Footer */
+.sidebar-bottom {
+    margin-top: auto;
+    padding-top: 1.5rem;
+    border-top: 1px solid #f1f5f9;
+    background: transparent;
+}
+
+.user-profile-widget {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+}
+
+.user-avatar-small {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #e2e8f0;
+}
+
+.user-avatar-small img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.user-meta-small h4 {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0;
+}
+
+.user-meta-small p {
+    font-size: 0.75rem;
+    color: #64748b;
+    margin: 0;
+    font-weight: 600;
 }
 
 .doc-main {
@@ -200,6 +301,7 @@
         opacity: 0;
         transform: translateY(-10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -238,7 +340,8 @@
 .filtered-tags-area {
     max-height: 300px;
     overflow-y: auto;
-    padding-right: 8px; /* Space for scrollbar */
+    padding-right: 8px;
+    /* Space for scrollbar */
     margin-top: 1rem;
 }
 
@@ -532,6 +635,25 @@
 
 .animate-fade-in {
     animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+
+.logout-icon-btn {
+    margin-left: auto;
+    background: none;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    font-size: 1.25rem;
+    padding: 0.5rem;
+    transition: color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logout-icon-btn:hover {
+    color: #ef4444;
 }
 
 @media (max-width: 768px) {

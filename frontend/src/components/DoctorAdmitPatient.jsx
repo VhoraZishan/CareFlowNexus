@@ -170,12 +170,7 @@ const DoctorAdmitPatient = () => {
                     <button className="nav-btn active" onClick={() => navigate('/patients/doctor-admit')}>
                         Add Patient
                     </button>
-                    <button className="nav-btn" onClick={() => {
-                        localStorage.removeItem('user');
-                        navigate('/');
-                    }}>
-                        Logout
-                    </button>
+
                 </nav>
 
                 <div className="sidebar-bottom">
