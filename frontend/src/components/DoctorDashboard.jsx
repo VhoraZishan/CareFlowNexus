@@ -124,7 +124,7 @@ const DoctorDashboard = () => {
             className={`nav-btn ${activeTab === "my-patients" ? "active" : ""}`}
             onClick={() => setActiveTab("my-patients")}
           >
-            <span className="nav-icon">👨‍⚕️</span> My Admitted Patients
+            <span className="nav-icon">🏥</span> My Admitted Patients
             {myAdmittedPatients.length > 0 && (
               <span className="count-badge">{myAdmittedPatients.length}</span>
             )}
@@ -133,16 +133,16 @@ const DoctorDashboard = () => {
             className={`nav-btn ${activeTab === "all-patients" ? "active" : ""}`}
             onClick={() => setActiveTab("all-patients")}
           >
-            <span className="nav-icon">📋</span> All Patients
+            <span className="nav-icon">📊</span> All Patients
           </button>
           <button
             className="nav-btn"
             onClick={() => navigate("/patients/doctor-admit")}
           >
-            <span className="nav-icon">➕</span> Admit Patient
+            <span className="nav-icon">✨</span> Admit Patient
           </button>
           <button className="nav-btn" onClick={handleLogout}>
-            <span className="nav-icon">⏻</span> Logout
+            <span className="nav-icon">🚪</span> Logout
           </button>
         </nav>
 
@@ -178,7 +178,7 @@ const DoctorDashboard = () => {
               className="add-patient-btn-header"
               onClick={() => navigate("/patients/doctor-admit")}
             >
-              ➕ Admit Patient
+              ✨ Admit Patient
             </button>
             <div className="doc-search">
               <span className="search-icon">🔍</span>
@@ -208,7 +208,7 @@ const DoctorDashboard = () => {
           ) : displayedPatients.length === 0 ? (
             <div className="empty-state">
               <div className="empty-icon">
-                {activeTab === "my-patients" ? "👨‍⚕️" : "📋"}
+                {activeTab === "my-patients" ? "🏥" : "📊"}
               </div>
               <h3>
                 {activeTab === "my-patients"
@@ -224,7 +224,7 @@ const DoctorDashboard = () => {
                 className="btn-primary"
                 onClick={() => navigate("/patients/doctor-admit")}
               >
-                ➕ Admit New Patient
+                ✨ Admit New Patient
               </button>
             </div>
           ) : (
@@ -312,7 +312,7 @@ const DoctorDashboard = () => {
                               handleRequestDischarge(patient.patient_id)
                             }
                           >
-                            📤 Request Discharge
+                            🏠 Request Discharge
                           </button>
                         )}
                       {patient.status === "created" && (
@@ -324,7 +324,7 @@ const DoctorDashboard = () => {
                             })
                           }
                         >
-                          ➕ Admit This Patient
+                          ✨ Admit This Patient
                         </button>
                       )}
                     </div>
