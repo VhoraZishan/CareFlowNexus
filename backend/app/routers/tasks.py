@@ -87,9 +87,19 @@ def complete_task(task_id: str, data: TaskCompleteRequest):
         # or post-discharge cleaning (patient status = discharged)
         if patient.get("status") == "bed_confirmed":
             result = _handle_pre_admission_cleaning_completion(task)
-            return {"status": "completed", **result}
+            return {
+                "status": "completed",
+                "workflow_branch": "pre_admission",
+                "patient_status": patient.get("status"),
+                **result
+            }
         else:
             _handle_post_discharge_cleaning_completion(task)
+            return {
+                "status": "completed",
+                "workflow_branch": "post_discharge",
+                "patient_status": patient.get("status")
+            }
 
     elif task["type"] == "patient_care":
         _handle_patient_care_completion(task)
@@ -160,6 +170,8 @@ def _handle_pre_admission_cleaning_completion(task):
     nurse_result = call_nurse_agent(patient, bed, nurses)
     print("NURSE AGENT RESULT (bed_prepared) =", nurse_result)
 
+    nurses_found_count = len(nurses)
+
     nurse_id = nurse_result.get("selected_nurse_id")
 
     if nurse_id:
@@ -178,11 +190,15 @@ def _handle_pre_admission_cleaning_completion(task):
         return {
             "assigned_nurse_id": nurse_id,
             "message": "Bed prepared. Nurse assigned for patient care.",
+            "nurses_found_count": nurses_found_count,
+            "nurse_agent_result": nurse_result
         }
     else:
         return {
             "assigned_nurse_id": None,
             "message": "Bed prepared but no nurse available",
+            "nurses_found_count": nurses_found_count,
+            "nurse_agent_result": nurse_result
         }
 
 
