@@ -595,12 +595,19 @@
 }
 
 .action-footer {
-    display: flex;
-    justify-content: flex-end;
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: flex-end !important;
+    align-items: center;
     gap: 1.5rem;
     margin-top: 3rem;
     padding-top: 2rem;
     border-top: 1px solid #f1f5f9;
+    width: 100%;
+}
+
+.action-footer button {
+    width: auto !important;
 }
 
 .loader-small {
