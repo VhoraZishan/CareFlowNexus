@@ -16,7 +16,11 @@ def get_tasks(user_id: str):
 
     tasks = []
     for doc in db.collection("tasks").where("assigned_to", "==", user_id).stream():
-        tasks.append(doc.to_dict())
+        task = doc.to_dict()
+        # Ensure task_id is included (Firestore doc.id might differ from task_id field)
+        if task:
+            task["task_id"] = task.get("task_id") or doc.id
+        tasks.append(task)
 
     return tasks
 
@@ -25,8 +29,26 @@ def get_tasks(user_id: str):
 def accept_task(task_id: str, data: TaskActionRequest):
     require_role(data.user_id, ["cleaner", "nurse"])
 
-    db.collection("tasks").document(task_id).update({"status": "accepted"})
-    return {"status": "accepted"}
+    task_ref = db.collection("tasks").document(task_id)
+    task_doc = task_ref.get()
+
+    if not task_doc.exists:
+        raise HTTPException(404, "Task not found")
+
+    task = task_doc.to_dict()
+
+    # Role + ownership enforcement
+    require_role(data.user_id, [task["role"]])
+
+    if task["assigned_to"] != data.user_id:
+        raise HTTPException(403, "Not your task")
+
+    if task["status"] != "assigned":
+        raise HTTPException(400, f"Task must be in 'assigned' status to accept. Current status: {task.get('status')}")
+
+    # Update task status to accepted
+    task_ref.update({"status": "accepted"})
+    return {"status": "accepted", "message": "Task accepted successfully"}
 
 
 @router.post("/{task_id}/complete")

@@ -8,6 +8,7 @@ const CleanerDashboard = () => {
     const [user, setUser] = useState(null);
     const [tasks, setTasks] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [processingTask, setProcessingTask] = useState(null); // Track which task is being processed
 
     useEffect(() => {
         const fetchTasks = async () => {
@@ -38,9 +39,64 @@ const CleanerDashboard = () => {
         navigate('/');
     };
 
-    // Filter tasks
-    const activeTasks = tasks.filter(t => t.status === 'IN PROGRESS' || t.priority === 'high');
-    const poolTasks = tasks.filter(t => t.status !== 'IN PROGRESS' && t.priority !== 'high');
+    const refreshTasks = async () => {
+        if (!user?.user_id) return;
+        try {
+            const data = await api.getTasks(user.user_id);
+            setTasks(data || []);
+        } catch (error) {
+            console.error('Failed to refresh tasks', error);
+        }
+    };
+
+    const handleAcceptTask = async (taskId) => {
+        if (!user?.user_id) {
+            alert('User not loaded. Please refresh the page.');
+            return;
+        }
+        setProcessingTask(taskId);
+        try {
+            await api.acceptTask(taskId, user.user_id);
+            alert('✅ Task accepted successfully!');
+            await refreshTasks();
+        } catch (error) {
+            console.error('Failed to accept task', error);
+            alert('❌ Error accepting task: ' + (error.message || 'Unknown error'));
+        } finally {
+            setProcessingTask(null);
+        }
+    };
+
+    const handleCompleteTask = async (taskId) => {
+        if (!user?.user_id) {
+            alert('User not loaded. Please refresh the page.');
+            return;
+        }
+        
+        // Confirm before completing
+        const confirmed = window.confirm(
+            'Are you sure you want to mark this task as completed?\n\n' +
+            'This will trigger the next step in the workflow.'
+        );
+        
+        if (!confirmed) return;
+        
+        setProcessingTask(taskId);
+        try {
+            const result = await api.completeTask(taskId, user.user_id, 'Task completed');
+            alert('✅ Task completed successfully!\n\n' + (result.message || 'The next workflow step has been triggered.'));
+            await refreshTasks();
+        } catch (error) {
+            console.error('Failed to complete task', error);
+            alert('❌ Error completing task: ' + (error.message || 'Unknown error'));
+        } finally {
+            setProcessingTask(null);
+        }
+    };
+
+    // Filter tasks - show assigned/accepted tasks as active, completed tasks are hidden
+    const activeTasks = tasks.filter(t => t.status === 'assigned' || t.status === 'accepted');
+    const completedTasks = tasks.filter(t => t.status === 'completed');
 
     return (
         <div className="cleaner-dashboard-premium">
@@ -79,11 +135,17 @@ const CleanerDashboard = () => {
                     </div>
 
                     <div className="header-right">
+                        <button 
+                            className="icon-btn" 
+                            onClick={refreshTasks}
+                            title="Refresh tasks"
+                        >
+                            🔄
+                        </button>
                         <div className="search-bar">
                             <span>🔍</span>
                             <input type="text" placeholder="Search tasks or rooms..." />
                         </div>
-                        <button className="icon-btn">🔔</button>
                     </div>
                 </header>
 
@@ -101,29 +163,61 @@ const CleanerDashboard = () => {
                         ) : (
                             <div className="task-stack">
                                 {activeTasks.map(task => (
-                                    <div key={task.id} className={`task-card-v2 ${task.priority}`}>
+                                    <div key={task.task_id} className={`task-card-v2 ${task.priority || 'normal'}`}>
                                         <div className="priority-line"></div>
                                         <div className="card-top">
                                             <div className="meta">
-                                                <span className="prio-label">{task.priority?.toUpperCase() || 'NORMAL'} PRIORITY</span>
-                                                <h4>Room {task.room || 'TBD'} • Bed {task.bed || '-'}</h4>
-                                                <p className="task-type-sub">{task.type || 'General Cleaning'}</p>
+                                                <span className="prio-label">{task.status?.toUpperCase() || 'ASSIGNED'}</span>
+                                                <h4>Bed {task.bed_id || '-'} • Patient {task.patient_id?.substring(0, 8) || 'N/A'}</h4>
+                                                <p className="task-type-sub">{task.type === 'cleaning' ? 'Bed Preparation Cleaning' : task.type || 'General Cleaning'}</p>
                                             </div>
                                             <div className="time-info">
-                                                <span className="assigned">Assigned {task.assignedAt || 'Today'}</span>
-                                                <span className="elapsed">In Progress</span>
+                                                <span className="assigned">
+                                                    {task.created_at 
+                                                        ? (() => {
+                                                            // Handle Firestore timestamp format
+                                                            const date = task.created_at.seconds 
+                                                                ? new Date(task.created_at.seconds * 1000)
+                                                                : task.created_at._seconds
+                                                                ? new Date(task.created_at._seconds * 1000)
+                                                                : new Date(task.created_at);
+                                                            return date.toLocaleDateString();
+                                                        })()
+                                                        : 'Today'}
+                                                </span>
+                                                <span className="elapsed">{task.status === 'accepted' ? 'Accepted' : 'Awaiting Acceptance'}</span>
                                             </div>
                                         </div>
 
                                         <div className="card-body">
                                             <div className="tag-row">
-                                                {task.priority === 'high' && <span className="warning-pill">⚠️ Isolation Required</span>}
                                                 <span className="safety-pill">🛡️ PPE Required</span>
+                                                {task.type === 'cleaning' && <span className="warning-pill">🧹 Bed Preparation</span>}
                                             </div>
                                         </div>
 
                                         <div className="card-actions">
-                                            <button className="btn-done-green">Mark Completed</button>
+                                            {task.status === 'assigned' ? (
+                                                <button 
+                                                    className="btn-accept"
+                                                    onClick={() => handleAcceptTask(task.task_id)}
+                                                    disabled={processingTask === task.task_id}
+                                                >
+                                                    {processingTask === task.task_id ? 'Processing...' : 'Accept Task'}
+                                                </button>
+                                            ) : task.status === 'accepted' ? (
+                                                <button 
+                                                    className="btn-done-green"
+                                                    onClick={() => handleCompleteTask(task.task_id)}
+                                                    disabled={processingTask === task.task_id}
+                                                >
+                                                    {processingTask === task.task_id ? 'Processing...' : 'Mark Completed'}
+                                                </button>
+                                            ) : (
+                                                <button className="btn-done-green" disabled>
+                                                    {task.status === 'completed' ? 'Completed' : task.status}
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
                                 ))}
@@ -133,29 +227,38 @@ const CleanerDashboard = () => {
 
                     <aside className="column-pool">
                         <div className="column-header">
-                            <h3>Available Pool</h3>
-                            <button className="filter-btn">≡</button>
+                            <h3>Completed Tasks</h3>
+                            <span className="count-badge">{completedTasks.length} Completed</span>
                         </div>
 
                         {loading ? (
-                            <div className="loading-state">Loading pool...</div>
-                        ) : poolTasks.length === 0 ? (
-                            <div className="empty-state">Pool is empty.</div>
+                            <div className="loading-state">Loading history...</div>
+                        ) : completedTasks.length === 0 ? (
+                            <div className="empty-state">No completed tasks yet.</div>
                         ) : (
                             <div className="pool-stack">
-                                {poolTasks.map(item => (
-                                    <div key={item.id} className="pool-item-card">
+                                {completedTasks.slice(0, 10).map(task => (
+                                    <div key={task.task_id} className="pool-item-card">
                                         <div className="p-top">
-                                            <span className={`p-prio-pill ${item.priority || 'normal'}`}>{item.priority?.toUpperCase() || 'NORMAL'}</span>
-                                            <span className="p-time">{item.time || 'Pending'}</span>
+                                            <span className="p-prio-pill completed">COMPLETED</span>
+                                            <span className="p-time">
+                                                {task.completed_at 
+                                                    ? (() => {
+                                                        // Handle Firestore timestamp format
+                                                        const date = task.completed_at.seconds 
+                                                            ? new Date(task.completed_at.seconds * 1000)
+                                                            : task.completed_at._seconds
+                                                            ? new Date(task.completed_at._seconds * 1000)
+                                                            : new Date(task.completed_at);
+                                                        return date.toLocaleDateString();
+                                                    })()
+                                                    : 'Recently'}
+                                            </span>
                                         </div>
                                         <div className="p-middle">
-                                            <h5>Room {item.room || '-'}</h5>
-                                            <p>{item.type || 'Standard Clean'}</p>
-                                        </div>
-                                        <div className="p-bottom">
-                                            <button className="link-btn">View Details</button>
-                                            <button className="accept-btn">Accept Task</button>
+                                            <h5>Bed {task.bed_id || '-'}</h5>
+                                            <p>{task.type === 'cleaning' ? 'Bed Preparation' : task.type || 'Standard Clean'}</p>
+                                            {task.notes && <small>{task.notes}</small>}
                                         </div>
                                     </div>
                                 ))}
