@@ -10,6 +10,7 @@ class ApiClient {
 
   async request(endpoint, options = {}) {
     const url = `${this.baseUrl}${endpoint}`;
+    console.log(`[ApiClient] Requesting: ${url}`); // DEBUG: Trace URL
     const headers = {
       "Content-Type": "application/json",
       ...options.headers,
@@ -29,7 +30,7 @@ class ApiClient {
           typeof errorData.detail === "object"
             ? JSON.stringify(errorData.detail)
             : errorData.detail ||
-              `Request failed with status ${response.status}`;
+            `Request failed with status ${response.status}`;
         throw new Error(errorMessage);
       }
 
