@@ -44,10 +44,42 @@ const NurseDashboard = () => {
         navigate('/');
     };
 
-    // Separate tasks (mock logic for now since backend might just return a flat list)
-    // Assuming backend returns a list of task objects
-    const currentTasks = tasks.filter(t => t.status === 'IN PROGRESS' || t.priority === 'urgent');
-    const queueTasks = tasks.filter(t => t.status !== 'IN PROGRESS' && t.priority !== 'urgent');
+    // Separate tasks
+    // Backend returns 'assigned' for queue and 'accepted' for current tasks (based on backend logic inspection)
+    // or 'IN PROGRESS' if that's what backend returns?
+    // Let's check backend: accept_task sets status to "accepted". complete_task sets "completed".
+    // So Queue = "assigned", Current = "accepted".
+
+    // Filter logic adjustment based on backend
+    const currentTasks = tasks.filter(t => t.status === 'accepted' || t.status === 'IN PROGRESS');
+    const queueTasks = tasks.filter(t => t.status === 'assigned');
+
+    const handleAcceptTask = async (taskId) => {
+        if (!user) return;
+        try {
+            await api.acceptTask(taskId, user.user_id);
+            // Refresh
+            const data = await api.getTasks(user.user_id);
+            setTasks(data || []);
+        } catch (err) {
+            console.error("Failed to accept task", err);
+            alert("Failed to start task: " + err.message);
+        }
+    };
+
+    const handleCompleteTask = async (taskId) => {
+        if (!user) return;
+        try {
+            const notes = prompt("Enter completion notes (optional):") || "";
+            await api.completeTask(taskId, user.user_id, notes);
+            // Refresh
+            const data = await api.getTasks(user.user_id);
+            setTasks(data || []);
+        } catch (err) {
+            console.error("Failed to complete task", err);
+            alert("Failed to complete task: " + err.message);
+        }
+    };
 
     return (
         <div className="nurse-layout-premium">
@@ -116,7 +148,7 @@ const NurseDashboard = () => {
                         ) : (
                             <div className="task-stack-main">
                                 {currentTasks.map(task => (
-                                    <div key={task.id} className={`task-card-large ${task.priority}`}>
+                                    <div key={task.task_id} className={`task-card-large ${task.priority || 'normal'}`}>
                                         <div className="card-top-row">
                                             <div className="priority-text">
                                                 {task.priority?.toUpperCase() || 'NORMAL'} PRIORITY
@@ -145,7 +177,7 @@ const NurseDashboard = () => {
                                         </div>
 
                                         <div className="action-row">
-                                            <button className="btn-blue full">Mark as Done</button>
+                                            <button className="btn-blue full" onClick={() => handleCompleteTask(task.task_id)}>Mark as Done</button>
                                         </div>
                                     </div>
                                 ))}
@@ -167,7 +199,7 @@ const NurseDashboard = () => {
                         ) : (
                             <div className="queue-list">
                                 {queueTasks.map(q => (
-                                    <div key={q.id} className="queue-card">
+                                    <div key={q.task_id} className="queue-card">
                                         <div className="q-top">
                                             <span className={`q-tag ${q.priority || 'normal'}`}>{q.priority?.toUpperCase() || 'NORMAL'}</span>
                                             <div className="q-time">
@@ -181,7 +213,7 @@ const NurseDashboard = () => {
                                         </div>
                                         <div className="q-actions">
                                             <button className="link-text">Review Notes</button>
-                                            <button className="outline-btn">Start Task</button>
+                                            <button className="outline-btn" onClick={() => handleAcceptTask(q.task_id)}>Start Task</button>
                                         </div>
                                     </div>
                                 ))}
